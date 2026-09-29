@@ -1,3 +1,4 @@
+import { AthleteProfileCard } from "@/components/AthleteProfileCard";
 import { SgaBrand } from "@/components/SgaBrand";
 import { SgaCornerBrand } from "@/components/SgaCornerBrand";
 import { TopicDisclosure } from "@/components/TopicDisclosure";
@@ -71,13 +72,19 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
           <div className="report-header__intro">
             <p className="report-header__eyebrow">{BRAND.legal}</p>
             <h1 className="report-header__title">{meta.title}</h1>
-            <p className="report-header__meta">
-              {player.name} · {player.club} · {meta.subtitle}
-            </p>
+            <p className="report-header__meta">{meta.subtitle}</p>
           </div>
         </header>
 
-        <main className="bento">
+        <div className="report-grid">
+          <AthleteProfileCard
+            name={player.name}
+            club={player.club}
+            photoSrc={player.photo}
+            clubLogoSrc={player.clubLogo}
+          />
+
+          <main className="bento">
           <TopicDisclosure
             num="01"
             title="Carries"
@@ -154,7 +161,8 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
               <p className="topic__center-caption">Successful defensive actions</p>
             </div>
           </TopicDisclosure>
-        </main>
+          </main>
+        </div>
 
         <footer className="footer">
           <p className="footer__slogan">{BRAND.slogan}</p>

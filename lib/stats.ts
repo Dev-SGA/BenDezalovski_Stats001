@@ -8,6 +8,8 @@ export type GameStats = {
   player: {
     name: string;
     club: string;
+    photo: string;
+    clubLogo: string;
   };
   carries: {
     progressiveCarries: number;

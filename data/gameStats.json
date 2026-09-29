@@ -5,7 +5,9 @@
   },
   "player": {
     "name": "Ben Dezalovski",
-    "club": "Club Ohio"
+    "club": "Club Ohio",
+    "photo": "/player/ben-dezalovski.jpeg",
+    "clubLogo": "/club/club-ohio.jpeg"
   },
   "carries": {
     "progressiveCarries": 12,
