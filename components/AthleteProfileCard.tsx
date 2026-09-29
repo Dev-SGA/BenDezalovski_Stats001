@@ -4,10 +4,9 @@ type AthleteProfileCardProps = {
   name: string;
   club: string;
   photoSrc: string;
-  clubLogoSrc: string;
 };
 
-export function AthleteProfileCard({ name, club, photoSrc, clubLogoSrc }: AthleteProfileCardProps) {
+export function AthleteProfileCard({ name, club, photoSrc }: AthleteProfileCardProps) {
   return (
     <aside className="athlete-column" aria-label="Athlete profile">
       <div className="athlete-photo">
@@ -18,24 +17,12 @@ export function AthleteProfileCard({ name, club, photoSrc, clubLogoSrc }: Athlet
           height={453}
           className="athlete-photo__img"
           priority
-          sizes="(max-width: 900px) 100vw, 340px"
+          sizes="(max-width: 900px) 100vw, 320px"
         />
-      </div>
-      <div className="athlete-details">
-        <p className="athlete-details__label">Athlete</p>
-        <h2 className="athlete-details__name">{name}</h2>
-        <div className="athlete-details__club">
-          <Image
-            src={clubLogoSrc}
-            alt={`${club} logo`}
-            width={56}
-            height={56}
-            className="athlete-details__club-logo"
-          />
-          <div>
-            <p className="athlete-details__club-label">Club</p>
-            <p className="athlete-details__club-name">{club}</p>
-          </div>
+        <div className="athlete-photo__overlay">
+          <p className="athlete-photo__label">Athlete</p>
+          <h2 className="athlete-photo__name">{name}</h2>
+          <p className="athlete-photo__club">{club}</p>
         </div>
       </div>
     </aside>
