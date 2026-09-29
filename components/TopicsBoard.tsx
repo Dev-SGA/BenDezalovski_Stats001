@@ -2,13 +2,18 @@
 
 import { useState } from "react";
 
-export type Tone = "accent" | "positive" | "warn";
+export type Phase = "build-up" | "defensive";
 
 export type Topic = {
   id: string;
   title: string;
-  tone: Tone;
+  phase: Phase;
   content: React.ReactNode;
+};
+
+const PHASE_LABEL: Record<Phase, string> = {
+  "build-up": "Build-Up",
+  defensive: "Defensive Phase",
 };
 
 type TopicsBoardProps = {
@@ -50,7 +55,7 @@ export function TopicsBoard({ topics }: TopicsBoardProps) {
             <article
               key={topic.id}
               id={`topic-${topic.id}`}
-              className={`topic topic--${topic.tone}${open ? " is-open" : ""}`}
+              className={`topic topic--${topic.phase}${open ? " is-open" : ""}`}
             >
               <button
                 type="button"
@@ -59,7 +64,10 @@ export function TopicsBoard({ topics }: TopicsBoardProps) {
                 aria-expanded={open}
                 aria-controls={panelId}
               >
-                <span className="topic__title">{topic.title}</span>
+                <span className="topic__trigger-text">
+                  <span className="topic__phase">{PHASE_LABEL[topic.phase]}</span>
+                  <span className="topic__title">{topic.title}</span>
+                </span>
                 <span className="topic__chevron" aria-hidden="true" />
               </button>
               {open ? (

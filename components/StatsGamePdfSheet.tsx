@@ -7,13 +7,18 @@ type StatsGamePdfSheetProps = {
   logoUrl: string;
 };
 
-type Tone = "blue" | "green" | "red";
+type Phase = "build-up" | "defensive";
+
+const PHASE_LABEL: Record<Phase, string> = {
+  "build-up": "Build-Up",
+  defensive: "Defensive Phase",
+};
 
 function pct(value: number, total: number): number {
   return total > 0 ? Math.round((value / total) * 100) : 0;
 }
 
-function Bar({ label, value, total, tone, detail }: { label: string; value: number; total: number; tone: Tone; detail?: string }) {
+function Bar({ label, value, total, tone, detail }: { label: string; value: number; total: number; tone: "blue" | "green"; detail?: string }) {
   const share = pct(value, total);
   return (
     <div className="spdf-bar">
@@ -32,26 +37,22 @@ function Bar({ label, value, total, tone, detail }: { label: string; value: numb
 }
 
 function Section({
+  phase,
   title,
   value,
   unit,
-  tag,
-  tagTone,
   children,
 }: {
+  phase: Phase;
   title: string;
   value: string;
   unit: string;
-  tag?: string;
-  tagTone?: "green" | "orange";
   children?: React.ReactNode;
 }) {
   return (
-    <section className="spdf-section">
-      <div className="spdf-section__head">
-        <h3 className="spdf-section__title">{title}</h3>
-        {tag ? <span className={`spdf-tag spdf-tag--${tagTone}`}>{tag}</span> : null}
-      </div>
+    <section className={`spdf-section spdf-section--${phase}`}>
+      <p className="spdf-section__phase">{PHASE_LABEL[phase]}</p>
+      <h3 className="spdf-section__title">{title}</h3>
       <div className="spdf-section__kpi">
         <span className="spdf-section__value">{value}</span>
         <span className="spdf-section__unit">{unit}</span>
@@ -83,7 +84,6 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
       <aside className="spdf-side">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={logoUrl} alt="" className="spdf-side__logo" />
-        {/* html2canvas ignores object-fit, so the crop uses a background image. */}
         <div className="spdf-side__photo" data-pdf-bg={photoUrl} style={{ backgroundImage: `url(${photoUrl})` }} />
         <div className="spdf-side__identity">
           <p className="spdf-side__label">Athlete</p>
@@ -106,7 +106,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
         </header>
 
         <div className="spdf-grid">
-          <Section title="Progressive Carries" value={String(carries.progressiveCarries)} unit="progressive carries">
+          <Section phase="build-up" title="Progressive Carries" value={String(carries.progressiveCarries)} unit="progressive carries">
             <Bar
               label="Found teammate in advantage"
               value={carries.foundAdvantage}
@@ -130,18 +130,16 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
             ) : null}
           </Section>
 
-          <Section title="Top Connections" value={String(passTotal)} unit="passes">
+          <Section phase="build-up" title="Top Connections" value={String(passTotal)} unit="passes">
             <Bar label="GK" value={topConnections.gk} total={passTotal} tone="blue" />
             <Bar label="MC" value={topConnections.mc} total={passTotal} tone="blue" />
-            <Bar label="Wrongs" value={topConnections.wrongs} total={passTotal} tone="red" />
           </Section>
 
           <Section
+            phase="defensive"
             title="Box-Defending Positioning"
             value={`${defensivePositioning.badAreaDefenseCount}×`}
             unit="out-of-position moments"
-            tag="Area to improve"
-            tagTone="orange"
           >
             <p className="spdf-note">Moments out of position while defending the box.</p>
             {positioningClip ? (
@@ -151,13 +149,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
             ) : null}
           </Section>
 
-          <Section
-            title="Defensive Actions"
-            value={String(defensiveActions.successful)}
-            unit="successful actions"
-            tag="Strength"
-            tagTone="green"
-          >
+          <Section phase="defensive" title="Defensive Actions" value={String(defensiveActions.successful)} unit="successful actions">
             <p className="spdf-note">Successful defensive actions completed in the match.</p>
           </Section>
         </div>

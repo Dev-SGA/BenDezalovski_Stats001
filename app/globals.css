@@ -275,12 +275,37 @@ body::before {
   overflow: hidden;
 }
 
-.topic--positive {
-  --topic-color: var(--tone-positive);
+.topic--build-up {
+  --topic-color: var(--accent);
+  background: color-mix(in srgb, var(--sga-blue) 14%, var(--surface));
 }
 
-.topic--warn {
-  --topic-color: var(--tone-warn);
+.topic--defensive {
+  --topic-color: #7a8f9f;
+  background: color-mix(in srgb, var(--sga-white) 8%, var(--surface));
+  border-left-color: #7a8f9f;
+}
+
+.topic__trigger-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.topic__phase {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.topic--build-up .topic__phase {
+  color: var(--tone-accent);
+}
+
+.topic--defensive .topic__phase {
+  color: var(--text-faint);
 }
 
 .topic__trigger {

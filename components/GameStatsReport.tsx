@@ -64,38 +64,9 @@ function SplitMeter({
   );
 }
 
-function DualShareCard({
-  title,
-  rows,
-  total,
-}: {
-  title: string;
-  rows: { label: string; value: number; tone: BarTone }[];
-  total: number;
-}) {
-  return (
-    <div className="metric-card">
-      <h3 className="metric-card__title">{title}</h3>
-      <ul className="share-list">
-        {rows.map((row) => (
-          <li key={row.label} className="share-list__row">
-            <span className="share-list__label">{row.label}</span>
-            <span className="share-list__track">
-              <span className={`share-list__fill share-list__fill--${row.tone}`} style={{ width: `${percent(row.value, total)}%` }} />
-            </span>
-            <span className="share-list__value">{row.value}</span>
-            <span className="share-list__pct">{percent(row.value, total)}%</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function BigStat({ value, caption, tone, tag }: { value: string; caption: string; tone: "positive" | "warn"; tag: string }) {
+function BigStat({ value, caption, tone }: { value: string; caption: string; tone: "positive" | "warn" }) {
   return (
     <div className={`big-stat big-stat--${tone}`}>
-      <span className="big-stat__tag">{tag}</span>
       <span className="big-stat__value">{value}</span>
       <p className="big-stat__caption">{caption}</p>
     </div>
@@ -116,7 +87,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
     {
       id: "carries",
       title: "Progressive Carries",
-      tone: "accent",
+      phase: "build-up",
       content: (
         <>
           <MetricFlow
@@ -157,7 +128,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
     {
       id: "connections",
       title: "Top Connections",
-      tone: "accent",
+      phase: "build-up",
       content: (
         <MetricFlow
           items={[
@@ -171,15 +142,11 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
               <span className="metric-card__value">{topConnections.gk}</span>
               <span className="metric-card__pct">{gkPct}% of passes</span>
             </div>,
-            <DualShareCard
-              key="wrong-mc"
-              title="Wrongs & MC"
-              total={passTotal}
-              rows={[
-                { label: "Wrongs", value: topConnections.wrongs, tone: "negative" },
-                { label: "MC", value: topConnections.mc, tone: "accent" },
-              ]}
-            />,
+            <div key="mc" className="metric-card">
+              <h3 className="metric-card__title">MC</h3>
+              <span className="metric-card__value">{topConnections.mc}</span>
+              <span className="metric-card__pct">{percent(topConnections.mc, passTotal)}% of passes</span>
+            </div>,
           ]}
         />
       ),
@@ -187,14 +154,13 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
     {
       id: "positioning",
       title: "Box-Defending Positioning",
-      tone: "warn",
+      phase: "defensive",
       content: (
         <div className="split-layout">
           <BigStat
             value={`${defensivePositioning.badAreaDefenseCount}×`}
             caption="Moments out of position while defending the box"
             tone="warn"
-            tag="Area to improve"
           />
           <ClipLinks links={[defensivePositioning.videoLink]} slots={1} />
         </div>
@@ -203,13 +169,12 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
     {
       id: "defensive",
       title: "Defensive Actions",
-      tone: "positive",
+      phase: "defensive",
       content: (
         <BigStat
           value={String(defensiveActions.successful)}
           caption="Successful defensive actions in the match"
           tone="positive"
-          tag="Strength"
         />
       ),
     },
