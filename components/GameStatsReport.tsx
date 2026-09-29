@@ -230,7 +230,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
           <AthleteProfileCard name={player.name} club={player.club} photoSrc={player.photo} />
 
           <main className="report-main">
-            <TopicsBoard topics={topics} defaultOpenIds={["carries"]} />
+            <TopicsBoard topics={topics} />
           </main>
         </div>
 

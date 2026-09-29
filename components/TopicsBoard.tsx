@@ -17,11 +17,10 @@ export type Topic = {
 
 type TopicsBoardProps = {
   topics: Topic[];
-  defaultOpenIds?: string[];
 };
 
-export function TopicsBoard({ topics, defaultOpenIds = [] }: TopicsBoardProps) {
-  const [openIds, setOpenIds] = useState<Set<string>>(() => new Set(defaultOpenIds));
+export function TopicsBoard({ topics }: TopicsBoardProps) {
+  const [openIds, setOpenIds] = useState<Set<string>>(() => new Set());
   const allOpen = openIds.size === topics.length;
 
   function toggle(id: string) {
@@ -33,36 +32,12 @@ export function TopicsBoard({ topics, defaultOpenIds = [] }: TopicsBoardProps) {
     });
   }
 
-  function reveal(id: string) {
-    setOpenIds((prev) => new Set(prev).add(id));
-    requestAnimationFrame(() => {
-      document.getElementById(`topic-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  }
-
   function toggleAll() {
     setOpenIds(allOpen ? new Set() : new Set(topics.map((topic) => topic.id)));
   }
 
   return (
     <div className="board">
-      <nav className="kpi-strip" aria-label="Key numbers">
-        {topics.map((topic) => (
-          <button
-            key={topic.id}
-            type="button"
-            className={`kpi kpi--${topic.tone}`}
-            onClick={() => reveal(topic.id)}
-          >
-            <span className="kpi__value">{topic.metric}</span>
-            <span className="kpi__label">{topic.metricLabel}</span>
-            <span className="kpi__topic">
-              {topic.num} · {topic.title}
-            </span>
-          </button>
-        ))}
-      </nav>
-
       <div className="board__toolbar">
         <h2 className="board__heading">Match breakdown</h2>
         <button type="button" className="btn btn--ghost" onClick={toggleAll}>
