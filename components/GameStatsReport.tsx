@@ -1,5 +1,6 @@
 import { AthleteProfileCard } from "@/components/AthleteProfileCard";
 import { ClipLinks } from "@/components/ClipLinks";
+import { MetricFlow } from "@/components/MetricFlow";
 import { SgaBrand } from "@/components/SgaBrand";
 import { SgaCornerBrand } from "@/components/SgaCornerBrand";
 import { TopicsBoard, type Topic } from "@/components/TopicsBoard";
@@ -40,7 +41,7 @@ function SplitMeter({
 
   return (
     <div className="metric-card">
-      <p className="section-label">{title}</p>
+      <h3 className="metric-card__title">{title}</h3>
       <p className="metric-card__headline">{headline}</p>
       <div className="meter" role="img" aria-label={`${primaryLabel}: ${primary}. ${secondaryLabel}: ${secondary}.`}>
         <span className={`meter__seg meter__seg--${primaryTone}`} style={{ width: `${primaryPct}%` }} />
@@ -62,23 +63,31 @@ function SplitMeter({
   );
 }
 
-function RankedBars({ rows, total }: { rows: { label: string; value: number; tone: BarTone }[]; total: number }) {
+function DualShareCard({
+  title,
+  rows,
+  total,
+}: {
+  title: string;
+  rows: { label: string; value: number; tone: BarTone }[];
+  total: number;
+}) {
   return (
-    <ul className="ranked">
-      {rows.map((row) => {
-        const pct = percent(row.value, total);
-        return (
-          <li key={row.label} className="ranked__row">
-            <span className="ranked__label">{row.label}</span>
-            <span className="ranked__track">
-              <span className={`ranked__fill ranked__fill--${row.tone}`} style={{ width: `${pct}%` }} />
+    <div className="metric-card">
+      <h3 className="metric-card__title">{title}</h3>
+      <ul className="share-list">
+        {rows.map((row) => (
+          <li key={row.label} className="share-list__row">
+            <span className="share-list__label">{row.label}</span>
+            <span className="share-list__track">
+              <span className={`share-list__fill share-list__fill--${row.tone}`} style={{ width: `${percent(row.value, total)}%` }} />
             </span>
-            <span className="ranked__value">{row.value}</span>
-            <span className="ranked__pct">{pct}%</span>
+            <span className="share-list__value">{row.value}</span>
+            <span className="share-list__pct">{percent(row.value, total)}%</span>
           </li>
-        );
-      })}
-    </ul>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -100,51 +109,46 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
   const advantageRate = percent(carries.foundAdvantage, carries.foundAdvantage + carries.notFoundAdvantage);
 
   const passTotal = topConnections.passes;
-  const otherPasses = passTotal - topConnections.gk - topConnections.mc - topConnections.wrongs;
-  const connectionRows: { label: string; value: number; tone: BarTone }[] = [
-    { label: "GK", value: topConnections.gk, tone: "accent" },
-    { label: "Wrongs", value: topConnections.wrongs, tone: "negative" },
-    { label: "MC", value: topConnections.mc, tone: "accent" },
-  ];
-  if (otherPasses > 0) connectionRows.push({ label: "Other", value: otherPasses, tone: "muted" });
-  connectionRows.sort((a, b) => b.value - a.value);
+  const gkPct = percent(topConnections.gk, passTotal);
 
   const topics: Topic[] = [
     {
       id: "carries",
       title: "Progressive Carries",
-      metric: String(carries.progressiveCarries),
-      metricLabel: "",
       tone: "accent",
       content: (
         <>
-          <div className="metric-grid">
-            <div className="metric-card metric-card--hero">
-              <p className="section-label">Progressive carries</p>
-              <span className="metric-card__value">{carries.progressiveCarries}</span>
-              <p className="metric-card__caption">Carries that moved the ball significantly toward goal</p>
-            </div>
-            <SplitMeter
-              title="Carry outcome"
-              headline={`${carries.foundAdvantage} of ${carries.foundAdvantage + carries.notFoundAdvantage} · ${advantageRate}%`}
-              primary={carries.foundAdvantage}
-              secondary={carries.notFoundAdvantage}
-              primaryLabel="Found teammate in advantage"
-              secondaryLabel="Did not find"
-              primaryTone="positive"
-              secondaryTone="muted"
-            />
-            <SplitMeter
-              title="Offensive duels"
-              headline={`${duelWinRate}% win rate`}
-              primary={carries.offensiveDuelsWon}
-              secondary={carries.offensiveDuelsLost}
-              primaryLabel="Won"
-              secondaryLabel="Lost"
-              primaryTone="positive"
-              secondaryTone="negative"
-            />
-          </div>
+          <MetricFlow
+            items={[
+              <div key="pc" className="metric-card metric-card--hero">
+                <h3 className="metric-card__title">Progressive carries</h3>
+                <span className="metric-card__value">{carries.progressiveCarries}</span>
+                <p className="metric-card__caption">Carries that moved the ball significantly toward goal</p>
+              </div>,
+              <SplitMeter
+                key="outcome"
+                title="Carry outcome"
+                headline={`${carries.foundAdvantage} of ${carries.foundAdvantage + carries.notFoundAdvantage} · ${advantageRate}%`}
+                primary={carries.foundAdvantage}
+                secondary={carries.notFoundAdvantage}
+                primaryLabel="Found teammate in advantage"
+                secondaryLabel="Did not find"
+                primaryTone="positive"
+                secondaryTone="muted"
+              />,
+              <SplitMeter
+                key="duels"
+                title="Offensive duels"
+                headline={`${duelWinRate}% win rate`}
+                primary={carries.offensiveDuelsWon}
+                secondary={carries.offensiveDuelsLost}
+                primaryLabel="Won"
+                secondaryLabel="Lost"
+                primaryTone="positive"
+                secondaryTone="negative"
+              />,
+            ]}
+          />
           <ClipLinks links={carries.videoLinks} slots={3} />
         </>
       ),
@@ -152,28 +156,36 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
     {
       id: "connections",
       title: "Top Connections",
-      metric: String(passTotal),
-      metricLabel: "",
       tone: "accent",
       content: (
-        <div className="connections">
-          <div className="metric-card metric-card--hero">
-            <p className="section-label">Total passes</p>
-            <span className="metric-card__value">{passTotal}</span>
-            <p className="metric-card__caption">Bars show each connection&apos;s share of all passes</p>
-          </div>
-          <div className="metric-card">
-            <p className="section-label">Pass destinations</p>
-            <RankedBars rows={connectionRows} total={passTotal} />
-          </div>
-        </div>
+        <MetricFlow
+          items={[
+            <div key="passes" className="metric-card metric-card--hero">
+              <h3 className="metric-card__title">Passes</h3>
+              <span className="metric-card__value">{passTotal}</span>
+              <p className="metric-card__caption">Total passes in the match</p>
+            </div>,
+            <div key="gk" className="metric-card">
+              <h3 className="metric-card__title">GK</h3>
+              <span className="metric-card__value">{topConnections.gk}</span>
+              <span className="metric-card__pct">{gkPct}% of passes</span>
+            </div>,
+            <DualShareCard
+              key="wrong-mc"
+              title="Wrongs & MC"
+              total={passTotal}
+              rows={[
+                { label: "Wrongs", value: topConnections.wrongs, tone: "negative" },
+                { label: "MC", value: topConnections.mc, tone: "accent" },
+              ]}
+            />,
+          ]}
+        />
       ),
     },
     {
       id: "positioning",
       title: "Box-Defending Positioning",
-      metric: `${defensivePositioning.badAreaDefenseCount}×`,
-      metricLabel: "",
       tone: "warn",
       content: (
         <div className="split-layout">
@@ -190,8 +202,6 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
     {
       id: "defensive",
       title: "Defensive Actions",
-      metric: String(defensiveActions.successful),
-      metricLabel: "",
       tone: "positive",
       content: (
         <BigStat
