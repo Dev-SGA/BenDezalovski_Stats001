@@ -1,0 +1,28 @@
+{
+  "meta": {
+    "title": "Relatório de Jogo",
+    "subtitle": "Estatísticas individuais"
+  },
+  "player": {
+    "name": "Ben Dezalovski",
+    "club": "Club Ohio"
+  },
+  "carries": {
+    "progressiveCarries": 12,
+    "foundAdvantage": 6,
+    "notFoundAdvantage": 6,
+    "offensiveDuelsWon": 5,
+    "offensiveDuelsLost": 1,
+    "videoLinks": ["", "", ""]
+  },
+  "passHeatmap": {
+    "imageUrl": null,
+    "caption": "Mapa de calor de destino de passes — em breve"
+  },
+  "defensivePositioning": {
+    "badAreaDefenseCount": 5
+  },
+  "defensiveActions": {
+    "successful": 10
+  }
+}
