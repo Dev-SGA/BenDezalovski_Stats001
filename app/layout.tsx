@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./pdf.css";
 
 export const metadata: Metadata = {
   title: "Ben Dezalovski — Game Stats | SGA Performance",

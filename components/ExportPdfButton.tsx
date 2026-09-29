@@ -24,13 +24,16 @@ export function ExportPdfButton({ stats }: ExportPdfButtonProps) {
     document.body.appendChild(host);
 
     const origin = window.location.origin;
-    const photoAbsoluteUrl = `${origin}${stats.player.photo}`;
-    const logoAbsoluteUrl = `${origin}${BRAND.logoTrimmed}`;
-
     const root = createRoot(host);
 
     try {
-      root.render(<StatsGamePdfSheet stats={stats} photoAbsoluteUrl={photoAbsoluteUrl} logoAbsoluteUrl={logoAbsoluteUrl} />);
+      root.render(
+        <StatsGamePdfSheet
+          stats={stats}
+          photoUrl={`${origin}${stats.player.photo}`}
+          logoUrl={`${origin}${BRAND.logoTrimmed}`}
+        />,
+      );
       await new Promise<void>((resolve) => {
         requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
       });
@@ -58,8 +61,11 @@ export function ExportPdfButton({ stats }: ExportPdfButtonProps) {
 
   return (
     <div className="export-pdf">
-      <button type="button" className="btn btn--primary" disabled={exporting} onClick={() => void generatePdf()}>
-        {exporting ? "Building PDF…" : "Generate PDF (16:9)"}
+      <button type="button" className="btn btn--primary btn--block" disabled={exporting} onClick={() => void generatePdf()}>
+        <svg className="export-pdf__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        {exporting ? "Building PDF…" : "Download PDF report"}
       </button>
       {error ? <p className="export-pdf__error">{error}</p> : null}
     </div>

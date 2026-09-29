@@ -1,12 +1,14 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 
 type AthleteProfileCardProps = {
   name: string;
   club: string;
   photoSrc: string;
+  children?: ReactNode;
 };
 
-export function AthleteProfileCard({ name, club, photoSrc }: AthleteProfileCardProps) {
+export function AthleteProfileCard({ name, club, photoSrc, children }: AthleteProfileCardProps) {
   return (
     <aside className="athlete-column" aria-label="Athlete profile">
       <div className="athlete-photo">
@@ -25,6 +27,7 @@ export function AthleteProfileCard({ name, club, photoSrc }: AthleteProfileCardP
           <p className="athlete-photo__club">{club}</p>
         </div>
       </div>
+      {children ? <div className="athlete-column__actions">{children}</div> : null}
     </aside>
   );
 }

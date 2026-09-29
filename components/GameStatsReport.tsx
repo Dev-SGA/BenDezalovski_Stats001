@@ -230,10 +230,11 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
         </header>
 
         <div className="report-grid">
-          <AthleteProfileCard name={player.name} club={player.club} photoSrc={player.photo} />
+          <AthleteProfileCard name={player.name} club={player.club} photoSrc={player.photo}>
+            <ExportPdfButton stats={stats} />
+          </AthleteProfileCard>
 
           <main className="report-main">
-            <ExportPdfButton stats={stats} />
             <TopicsBoard topics={topics} />
           </main>
         </div>

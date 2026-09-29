@@ -3,113 +3,172 @@ import type { GameStats } from "@/lib/stats";
 
 type StatsGamePdfSheetProps = {
   stats: GameStats;
-  photoAbsoluteUrl: string;
-  logoAbsoluteUrl: string;
+  photoUrl: string;
+  logoUrl: string;
 };
+
+type Tone = "blue" | "green" | "red";
 
 function pct(value: number, total: number): number {
   return total > 0 ? Math.round((value / total) * 100) : 0;
 }
 
-function clipRows(links: string[]): { label: string; url: string }[] {
-  return links
-    .map((url, index) => ({ label: `Clip ${index + 1}`, url: url.trim() }))
-    .filter((row) => row.url.length > 0);
+function Bar({ label, value, total, tone, detail }: { label: string; value: number; total: number; tone: Tone; detail?: string }) {
+  const share = pct(value, total);
+  return (
+    <div className="spdf-bar">
+      <div className="spdf-bar__head">
+        <span className="spdf-bar__label">{label}</span>
+        <span className="spdf-bar__figure">
+          {detail ?? value}
+          <span className="spdf-bar__pct">{share}%</span>
+        </span>
+      </div>
+      <div className="spdf-bar__track">
+        <div className={`spdf-bar__fill spdf-bar__fill--${tone}`} style={{ width: `${share}%` }} />
+      </div>
+    </div>
+  );
 }
 
-export function StatsGamePdfSheet({ stats, photoAbsoluteUrl, logoAbsoluteUrl }: StatsGamePdfSheetProps) {
+function Section({
+  title,
+  value,
+  unit,
+  tag,
+  tagTone,
+  children,
+}: {
+  title: string;
+  value: string;
+  unit: string;
+  tag?: string;
+  tagTone?: "green" | "orange";
+  children?: React.ReactNode;
+}) {
+  return (
+    <section className="spdf-section">
+      <div className="spdf-section__head">
+        <h3 className="spdf-section__title">{title}</h3>
+        {tag ? <span className={`spdf-tag spdf-tag--${tagTone}`}>{tag}</span> : null}
+      </div>
+      <div className="spdf-section__kpi">
+        <span className="spdf-section__value">{value}</span>
+        <span className="spdf-section__unit">{unit}</span>
+      </div>
+      {children ? <div className="spdf-section__detail">{children}</div> : null}
+    </section>
+  );
+}
+
+function ClipLink({ url, label }: { url: string; label: string }) {
+  return (
+    <span className="spdf-clip" data-pdf-link={url}>
+      ▶ {label}
+    </span>
+  );
+}
+
+export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfSheetProps) {
   const { player, meta, carries, topConnections, defensivePositioning, defensiveActions } = stats;
   const passTotal = topConnections.passes;
   const advantageTotal = carries.foundAdvantage + carries.notFoundAdvantage;
   const duelTotal = carries.offensiveDuelsWon + carries.offensiveDuelsLost;
-  const carryClips = clipRows(carries.videoLinks);
+  const carryClips = carries.videoLinks.map((url) => url.trim()).filter(Boolean);
   const positioningClip = defensivePositioning.videoLink.trim();
+  const issued = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
   return (
     <article className="stats-pdf" aria-hidden="true">
-      <header className="stats-pdf__head">
+      <aside className="spdf-side">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logoAbsoluteUrl} alt="" className="stats-pdf__logo" />
-        <div className="stats-pdf__head-text">
-          <p className="stats-pdf__eyebrow">{BRAND.legal}</p>
-          <h1 className="stats-pdf__title">{meta.title}</h1>
-          <p className="stats-pdf__subtitle">{meta.subtitle}</p>
+        <img src={logoUrl} alt="" className="spdf-side__logo" />
+        {/* html2canvas ignores object-fit, so the crop uses a background image. */}
+        <div className="spdf-side__photo" data-pdf-bg={photoUrl} style={{ backgroundImage: `url(${photoUrl})` }} />
+        <div className="spdf-side__identity">
+          <p className="spdf-side__label">Athlete</p>
+          <h2 className="spdf-side__name">{player.name}</h2>
+          <p className="spdf-side__club">{player.club}</p>
         </div>
-      </header>
+        <p className="spdf-side__slogan">{BRAND.slogan}</p>
+      </aside>
 
-      <div className="stats-pdf__body">
-        <section className="stats-pdf__profile">
-          <div
-            className="stats-pdf__photo"
-            style={{ backgroundImage: photoAbsoluteUrl ? `url(${photoAbsoluteUrl})` : undefined }}
-          />
+      <div className="spdf-main">
+        <header className="spdf-head">
           <div>
-            <p className="stats-pdf__label">Athlete</p>
-            <h2 className="stats-pdf__name">{player.name}</h2>
-            <p className="stats-pdf__club">{player.club}</p>
+            <p className="spdf-head__eyebrow">{BRAND.legal}</p>
+            <h1 className="spdf-head__title">{meta.title}</h1>
           </div>
-        </section>
+          <div className="spdf-head__meta">
+            <span>{meta.subtitle}</span>
+            <span>{issued}</span>
+          </div>
+        </header>
 
-        <section className="stats-pdf__grid">
-          <div className="stats-pdf__block">
-            <h3 className="stats-pdf__block-title">Progressive Carries</h3>
-            <p className="stats-pdf__hero">{carries.progressiveCarries}</p>
-            <ul className="stats-pdf__lines">
-              <li>
-                Carry outcome: {carries.foundAdvantage}/{advantageTotal} found teammate ({pct(carries.foundAdvantage, advantageTotal)}%)
-              </li>
-              <li>
-                Offensive duels: {carries.offensiveDuelsWon} won · {carries.offensiveDuelsLost} lost ({pct(carries.offensiveDuelsWon, duelTotal)}%)
-              </li>
-            </ul>
+        <div className="spdf-grid">
+          <Section title="Progressive Carries" value={String(carries.progressiveCarries)} unit="progressive carries">
+            <Bar
+              label="Found teammate in advantage"
+              value={carries.foundAdvantage}
+              total={advantageTotal}
+              detail={`${carries.foundAdvantage}/${advantageTotal}`}
+              tone="blue"
+            />
+            <Bar
+              label="Offensive duels won"
+              value={carries.offensiveDuelsWon}
+              total={duelTotal}
+              detail={`${carries.offensiveDuelsWon}/${duelTotal}`}
+              tone="green"
+            />
             {carryClips.length ? (
-              <ul className="stats-pdf__links">
-                {carryClips.map((clip) => (
-                  <li key={clip.label}>
-                    <span data-pdf-link={clip.url}>{clip.label}</span>
-                  </li>
+              <div className="spdf-clips">
+                {carryClips.map((url, index) => (
+                  <ClipLink key={url} url={url} label={`Clip ${index + 1}`} />
                 ))}
-              </ul>
+              </div>
             ) : null}
-          </div>
+          </Section>
 
-          <div className="stats-pdf__block">
-            <h3 className="stats-pdf__block-title">Top Connections</h3>
-            <p className="stats-pdf__hero">{passTotal}</p>
-            <p className="stats-pdf__hero-caption">Passes</p>
-            <ul className="stats-pdf__lines">
-              <li>
-                GK: {topConnections.gk} ({pct(topConnections.gk, passTotal)}%)
-              </li>
-              <li>
-                Wrongs: {topConnections.wrongs} ({pct(topConnections.wrongs, passTotal)}%)
-              </li>
-              <li>
-                MC: {topConnections.mc} ({pct(topConnections.mc, passTotal)}%)
-              </li>
-            </ul>
-          </div>
+          <Section title="Top Connections" value={String(passTotal)} unit="passes">
+            <Bar label="GK" value={topConnections.gk} total={passTotal} tone="blue" />
+            <Bar label="MC" value={topConnections.mc} total={passTotal} tone="blue" />
+            <Bar label="Wrongs" value={topConnections.wrongs} total={passTotal} tone="red" />
+          </Section>
 
-          <div className="stats-pdf__block stats-pdf__block--warn">
-            <h3 className="stats-pdf__block-title">Box-Defending Positioning</h3>
-            <p className="stats-pdf__hero stats-pdf__hero--warn">{defensivePositioning.badAreaDefenseCount}×</p>
-            <p className="stats-pdf__lines">Out-of-position moments in the box</p>
+          <Section
+            title="Box-Defending Positioning"
+            value={`${defensivePositioning.badAreaDefenseCount}×`}
+            unit="out-of-position moments"
+            tag="Area to improve"
+            tagTone="orange"
+          >
+            <p className="spdf-note">Moments out of position while defending the box.</p>
             {positioningClip ? (
-              <p className="stats-pdf__links">
-                <span data-pdf-link={positioningClip}>Video clip</span>
-              </p>
+              <div className="spdf-clips">
+                <ClipLink url={positioningClip} label="Video clip" />
+              </div>
             ) : null}
-          </div>
+          </Section>
 
-          <div className="stats-pdf__block stats-pdf__block--good">
-            <h3 className="stats-pdf__block-title">Defensive Actions</h3>
-            <p className="stats-pdf__hero stats-pdf__hero--good">{defensiveActions.successful}</p>
-            <p className="stats-pdf__lines">Successful defensive actions</p>
-          </div>
-        </section>
+          <Section
+            title="Defensive Actions"
+            value={String(defensiveActions.successful)}
+            unit="successful actions"
+            tag="Strength"
+            tagTone="green"
+          >
+            <p className="spdf-note">Successful defensive actions completed in the match.</p>
+          </Section>
+        </div>
+
+        <footer className="spdf-foot">
+          <span>{BRAND.name}</span>
+          <span>
+            {player.name} · {meta.title}
+          </span>
+        </footer>
       </div>
-
-      <footer className="stats-pdf__foot">{BRAND.slogan}</footer>
     </article>
   );
 }
