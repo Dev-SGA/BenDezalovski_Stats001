@@ -18,6 +18,14 @@ function pct(value: number, total: number): number {
   return total > 0 ? Math.round((value / total) * 100) : 0;
 }
 
+function linkHost(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url.length > 48 ? `${url.slice(0, 45)}…` : url;
+  }
+}
+
 function Bar({ label, value, total, tone, detail }: { label: string; value: number; total: number; tone: "blue" | "green"; detail?: string }) {
   const share = pct(value, total);
   return (
@@ -62,11 +70,37 @@ function Section({
   );
 }
 
-function ClipLink({ url, label }: { url: string; label: string }) {
+function PdfVideoLinks({ carryLinks, positioningLink }: { carryLinks: string[]; positioningLink: string }) {
+  const rows = [
+    { label: "Clip 1 — Progressive carries", url: (carryLinks[0] ?? "").trim() },
+    { label: "Clip 2 — Progressive carries", url: (carryLinks[1] ?? "").trim() },
+    { label: "Clip 3 — Progressive carries", url: (carryLinks[2] ?? "").trim() },
+    { label: "Box-defending positioning", url: positioningLink.trim() },
+  ];
+
   return (
-    <span className="spdf-clip" data-pdf-link={url}>
-      ▶ {label}
-    </span>
+    <section className="spdf-videos" aria-label="Video clips">
+      <h4 className="spdf-videos__title">Video clips</h4>
+      <ul className="spdf-videos__list">
+        {rows.map((row) => (
+          <li key={row.label}>
+            {row.url ? (
+              <a className="spdf-videos__link" href={row.url} data-pdf-link={row.url}>
+                <span className="spdf-videos__play" aria-hidden="true">
+                  ▶
+                </span>
+                <span className="spdf-videos__text">
+                  <strong>{row.label}</strong>
+                  <span>{linkHost(row.url)}</span>
+                </span>
+              </a>
+            ) : (
+              <span className="spdf-videos__empty">{row.label} — pending</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -75,8 +109,6 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
   const passTotal = topConnections.passes;
   const advantageTotal = carries.foundAdvantage + carries.notFoundAdvantage;
   const duelTotal = carries.offensiveDuelsWon + carries.offensiveDuelsLost;
-  const carryClips = carries.videoLinks.map((url) => url.trim()).filter(Boolean);
-  const positioningClip = defensivePositioning.videoLink.trim();
   const issued = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
   return (
@@ -121,13 +153,6 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
               detail={`${carries.offensiveDuelsWon}/${duelTotal}`}
               tone="green"
             />
-            {carryClips.length ? (
-              <div className="spdf-clips">
-                {carryClips.map((url, index) => (
-                  <ClipLink key={url} url={url} label={`Clip ${index + 1}`} />
-                ))}
-              </div>
-            ) : null}
           </Section>
 
           <Section phase="build-up" title="Top Connections" value={String(passTotal)} unit="passes">
@@ -142,17 +167,14 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
             unit="out-of-position moments"
           >
             <p className="spdf-note">Moments out of position while defending the box.</p>
-            {positioningClip ? (
-              <div className="spdf-clips">
-                <ClipLink url={positioningClip} label="Video clip" />
-              </div>
-            ) : null}
           </Section>
 
           <Section phase="defensive" title="Defensive Actions" value={String(defensiveActions.successful)} unit="successful actions">
             <p className="spdf-note">Successful defensive actions completed in the match.</p>
           </Section>
         </div>
+
+        <PdfVideoLinks carryLinks={carries.videoLinks} positioningLink={defensivePositioning.videoLink} />
 
         <footer className="spdf-foot">
           <span>{BRAND.name}</span>

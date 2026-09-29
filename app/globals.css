@@ -669,75 +669,61 @@ body::before {
 
 .clips__list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 10px;
+  gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.clip {
-  display: flex;
+.clips__row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 10px;
   align-items: center;
-  gap: 12px;
-  min-height: 56px;
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  color: inherit;
-  text-decoration: none;
 }
 
-.clip--ready {
-  border: 1px solid var(--line-strong);
-  background: color-mix(in srgb, var(--sga-blue) 16%, transparent);
-  transition: background 0.15s ease;
-}
-
-.clip--ready:hover {
-  background: color-mix(in srgb, var(--sga-blue) 28%, transparent);
-}
-
-.clip--ready:focus-visible {
-  outline: 2px solid var(--tone-accent);
-  outline-offset: 2px;
-}
-
-.clip--pending {
-  border: 1px dashed var(--line);
-  color: var(--text-faint);
-  cursor: default;
-}
-
-.clip__icon {
+.clips__index {
   display: grid;
   place-items: center;
-  flex: 0 0 32px;
-  height: 32px;
-  border-radius: 999px;
-  font-size: 11px;
-  background: var(--accent);
-  color: var(--sga-white);
-}
-
-.clip--pending .clip__icon {
-  background: color-mix(in srgb, var(--sga-white) 10%, transparent);
-  color: var(--text-faint);
-}
-
-.clip__text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-
-.clip__title {
-  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--sga-blue) 22%, transparent);
+  color: var(--accent);
+  font-size: 12px;
   font-weight: 700;
 }
 
-.clip__hint {
+.clips__input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  background: var(--surface-sunken);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.clips__input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.clips__pending {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.clip--ready {
+  padding: 8px 12px;
   font-size: 12px;
-  color: var(--text-faint);
+  text-decoration: none;
 }
 
 /* ---------- Buttons ---------- */

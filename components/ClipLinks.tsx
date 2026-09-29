@@ -1,40 +1,52 @@
+"use client";
+
+import { useVideoLinks } from "@/components/VideoLinksContext";
+
 type ClipLinksProps = {
-  links: string[];
+  scope: "carries" | "positioning";
   slots?: number;
 };
 
-export function ClipLinks({ links, slots = links.length }: ClipLinksProps) {
-  const items = Array.from({ length: slots }, (_, index) => links[index]?.trim() ?? "");
+export function ClipLinks({ scope, slots = scope === "carries" ? 3 : 1 }: ClipLinksProps) {
+  const { carryLinks, setCarryLink, positioningLink, setPositioningLink } = useVideoLinks();
+
+  const items =
+    scope === "carries"
+      ? Array.from({ length: slots }, (_, index) => ({
+          url: carryLinks[index] ?? "",
+          onChange: (value: string) => setCarryLink(index, value),
+        }))
+      : [{ url: positioningLink, onChange: setPositioningLink }];
 
   return (
     <div className="clips">
       <p className="section-label">Video clips</p>
       <ul className="clips__list">
-        {items.map((url, index) => (
-          <li key={index}>
-            {url ? (
-              <a className="clip clip--ready" href={url} target="_blank" rel="noopener noreferrer">
-                <span className="clip__icon" aria-hidden="true">
-                  ▶
-                </span>
-                <span className="clip__text">
-                  <span className="clip__title">Clip {index + 1}</span>
-                  <span className="clip__hint">Watch video</span>
-                </span>
-              </a>
-            ) : (
-              <span className="clip clip--pending" aria-disabled="true">
-                <span className="clip__icon" aria-hidden="true">
-                  ▶
-                </span>
-                <span className="clip__text">
-                  <span className="clip__title">Clip {index + 1}</span>
-                  <span className="clip__hint">Coming soon</span>
-                </span>
-              </span>
-            )}
-          </li>
-        ))}
+        {items.map((item, index) => {
+          const trimmed = item.url.trim();
+          const hasUrl = trimmed.length > 0;
+
+          return (
+            <li key={index} className="clips__row">
+              <span className="clips__index">{index + 1}</span>
+              <input
+                type="url"
+                className="clips__input"
+                placeholder={`Paste video link ${index + 1}`}
+                value={item.url}
+                onChange={(e) => item.onChange(e.target.value)}
+                aria-label={`Video link ${index + 1}`}
+              />
+              {hasUrl ? (
+                <a className="clip clip--ready btn btn--primary" href={trimmed} target="_blank" rel="noopener noreferrer">
+                  Open
+                </a>
+              ) : (
+                <span className="clips__pending">Pending</span>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

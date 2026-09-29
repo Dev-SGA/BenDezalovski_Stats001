@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { StatsGamePdfSheet } from "@/components/StatsGamePdfSheet";
+import { useVideoLinks } from "@/components/VideoLinksContext";
 import { BRAND } from "@/lib/brand";
 import { exportStatsSlideToPdf } from "@/lib/exportPdf";
 import type { GameStats } from "@/lib/stats";
@@ -12,6 +13,7 @@ type ExportPdfButtonProps = {
 };
 
 export function ExportPdfButton({ stats }: ExportPdfButtonProps) {
+  const { mergeIntoStats } = useVideoLinks();
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,12 +26,13 @@ export function ExportPdfButton({ stats }: ExportPdfButtonProps) {
     document.body.appendChild(host);
 
     const origin = window.location.origin;
+    const exportStats = mergeIntoStats(stats);
     const root = createRoot(host);
 
     try {
       root.render(
         <StatsGamePdfSheet
-          stats={stats}
+          stats={exportStats}
           photoUrl={`${origin}${stats.player.photo}`}
           logoUrl={`${origin}${BRAND.logoTrimmed}`}
         />,

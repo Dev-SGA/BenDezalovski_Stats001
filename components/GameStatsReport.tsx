@@ -1,6 +1,9 @@
+"use client";
+
 import { AthleteProfileCard } from "@/components/AthleteProfileCard";
 import { ExportPdfButton } from "@/components/ExportPdfButton";
 import { ClipLinks } from "@/components/ClipLinks";
+import { VideoLinksProvider } from "@/components/VideoLinksContext";
 import { MetricFlow } from "@/components/MetricFlow";
 import { SgaBrand } from "@/components/SgaBrand";
 import { SgaCornerBrand } from "@/components/SgaCornerBrand";
@@ -121,7 +124,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
               />,
             ]}
           />
-          <ClipLinks links={carries.videoLinks} slots={3} />
+          <ClipLinks scope="carries" />
         </>
       ),
     },
@@ -162,7 +165,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
             caption="Moments out of position while defending the box"
             tone="warn"
           />
-          <ClipLinks links={[defensivePositioning.videoLink]} slots={1} />
+          <ClipLinks scope="positioning" />
         </div>
       ),
     },
@@ -181,7 +184,10 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
   ];
 
   return (
-    <>
+    <VideoLinksProvider
+      initialCarryLinks={carries.videoLinks}
+      initialPositioningLink={defensivePositioning.videoLink}
+    >
       <SgaCornerBrand />
 
       <div className="shell">
@@ -209,6 +215,6 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
           <p className="footer__rights">All rights reserved.</p>
         </footer>
       </div>
-    </>
+    </VideoLinksProvider>
   );
 }

@@ -46,9 +46,12 @@ export async function exportStatsSlideToPdf(element: HTMLElement, filename: stri
   }
 
   const sheetRect = element.getBoundingClientRect();
-  const links = Array.from(element.querySelectorAll<HTMLElement>("[data-pdf-link]"))
-    .map((node) => ({ url: node.dataset.pdfLink ?? "", rect: node.getBoundingClientRect() }))
-    .filter((link) => link.url);
+  const links = Array.from(element.querySelectorAll<HTMLAnchorElement>("a[data-pdf-link]"))
+    .map((node) => ({
+      url: node.dataset.pdfLink || node.href,
+      rect: node.getBoundingClientRect(),
+    }))
+    .filter((link) => link.url.startsWith("http"));
 
   const canvas = await html2canvas(element, {
     scale: 2.5,
