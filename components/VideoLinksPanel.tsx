@@ -35,7 +35,7 @@ export function VideoLinksPanel({ initialLinks }: VideoLinksPanelProps) {
                 aria-label={`Link de vídeo ${index + 1}`}
               />
               {hasUrl ? (
-                <a className="video-links__open btn btn--small" href={trimmed} target="_blank" rel="noopener noreferrer">
+                <a className="video-links__open btn btn--primary" href={trimmed} target="_blank" rel="noopener noreferrer">
                   Abrir
                 </a>
               ) : (

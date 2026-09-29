@@ -1,4 +1,7 @@
+import { SgaBrand } from "@/components/SgaBrand";
+import { SgaCornerBrand } from "@/components/SgaCornerBrand";
 import { VideoLinksPanel } from "@/components/VideoLinksPanel";
+import { BRAND } from "@/lib/brand";
 import type { GameStats } from "@/lib/stats";
 
 type GameStatsReportProps = {
@@ -41,17 +44,19 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
   const { player, carries, topConnections, defensivePositioning, defensiveActions, meta } = stats;
 
   return (
-    <div className="page">
-      <div className="page__glow page__glow--a" aria-hidden />
-      <div className="page__glow page__glow--b" aria-hidden />
+    <>
+      <SgaCornerBrand />
 
-      <div className="wrap">
-        <header className="hero">
-          <div className="hero__badge">{player.club}</div>
-          <h1 className="hero__name">{player.name}</h1>
-          <p className="hero__meta">
-            {meta.title} · {meta.subtitle}
-          </p>
+      <div className="shell">
+        <header className="report-header">
+          <SgaBrand />
+          <div className="report-header__intro">
+            <p className="report-header__eyebrow">{BRAND.legal}</p>
+            <h1 className="report-header__title">{meta.title}</h1>
+            <p className="report-header__meta">
+              {player.name} · {player.club}
+            </p>
+          </div>
         </header>
 
         <main className="bento">
@@ -130,10 +135,11 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
           </section>
         </main>
 
-        <footer className="foot">
-          <p>Club Ohio · Ben Dezalovski · Stats de jogo</p>
+        <footer className="footer">
+          <p className="footer__slogan">{BRAND.slogan}</p>
+          <p className="footer__rights">All rights reserved.</p>
         </footer>
       </div>
-    </div>
+    </>
   );
 }
