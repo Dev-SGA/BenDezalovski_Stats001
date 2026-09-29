@@ -17,9 +17,11 @@ export type GameStats = {
     offensiveDuelsLost: number;
     videoLinks: string[];
   };
-  passHeatmap: {
-    imageUrl: string | null;
-    caption: string;
+  topConnections: {
+    passes: number;
+    gk: number;
+    wrongs: number;
+    mc: number;
   };
   defensivePositioning: {
     badAreaDefenseCount: number;

@@ -15,9 +15,11 @@
     "offensiveDuelsLost": 1,
     "videoLinks": ["", "", ""]
   },
-  "passHeatmap": {
-    "imageUrl": null,
-    "caption": "Mapa de calor de destino de passes — em breve"
+  "topConnections": {
+    "passes": 40,
+    "gk": 13,
+    "wrongs": 12,
+    "mc": 9
   },
   "defensivePositioning": {
     "badAreaDefenseCount": 5

@@ -15,7 +15,6 @@
   --red-soft: rgba(255, 92, 106, 0.15);
   --amber: #ffc857;
   --amber-soft: rgba(255, 200, 87, 0.12);
-  --pitch: #1e3d2f;
   --font-display: "Bebas Neue", system-ui, sans-serif;
   --font-body: "Outfit", system-ui, sans-serif;
   --radius: 16px;
@@ -136,9 +135,6 @@ body {
   grid-column: 1 / -1;
 }
 
-.topic--heatmap {
-  grid-column: 1 / -1;
-}
 
 .topic__head {
   display: flex;
@@ -361,70 +357,12 @@ body {
   filter: brightness(1.08);
 }
 
-/* Heatmap placeholder */
+/* Top connections */
 
-.heatmap-slot {
-  min-height: 220px;
-  border-radius: var(--radius-sm);
-  border: 1px dashed var(--line-strong);
-  background: linear-gradient(165deg, var(--pitch) 0%, #152820 100%);
-  overflow: hidden;
-}
-
-.heatmap-slot__img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.heatmap-slot__placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  min-height: 220px;
-  padding: 24px;
-  text-align: center;
-}
-
-.heatmap-slot__placeholder p {
-  margin: 0;
-  max-width: 28rem;
-  font-size: 14px;
-  color: var(--text-muted);
-}
-
-.pitch-mini {
-  position: relative;
-  width: min(280px, 80%);
-  aspect-ratio: 68 / 105;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  opacity: 0.5;
-}
-
-.pitch-mini__line {
-  position: absolute;
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.pitch-mini__line--mid {
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 2px;
-  transform: translateY(-50%);
-}
-
-.pitch-mini__line--box {
-  bottom: 0;
-  left: 22%;
-  right: 22%;
-  height: 18%;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  border-bottom: none;
-  background: transparent;
+.connections-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
 }
 
 /* Center stats (topics 3 & 4) */
@@ -477,9 +415,12 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .topic--wide,
-  .topic--heatmap {
+  .topic--wide {
     grid-column: auto;
+  }
+
+  .connections-grid {
+    grid-template-columns: 1fr;
   }
 
   .stat-row {

@@ -15,7 +15,7 @@ Abra [http://localhost:3000](http://localhost:3000).
 
 ## Dados
 
-Edite `data/gameStats.json` para atualizar números, links de vídeo e, quando estiver pronto, a URL do mapa de calor (`passHeatmap.imageUrl`).
+Edite `data/gameStats.json` para atualizar números, links de vídeo e Top Connections (`topConnections`).
 
 ## Deploy
 

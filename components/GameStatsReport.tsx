@@ -38,7 +38,7 @@ function SplitBar({ left, right, leftLabel, rightLabel }: { left: number; right:
 }
 
 export function GameStatsReport({ stats }: GameStatsReportProps) {
-  const { player, carries, passHeatmap, defensivePositioning, defensiveActions, meta } = stats;
+  const { player, carries, topConnections, defensivePositioning, defensiveActions, meta } = stats;
 
   return (
     <div className="page">
@@ -83,26 +83,23 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
             <VideoLinksPanel initialLinks={carries.videoLinks} />
           </section>
 
-          <section className="topic topic--heatmap" aria-labelledby="topic-heatmap">
+          <section className="topic topic--wide" aria-labelledby="topic-connections">
             <div className="topic__head">
               <span className="topic__num">02</span>
-              <h2 id="topic-heatmap" className="topic__title">
-                Mapa de calor de destino de passes
+              <h2 id="topic-connections" className="topic__title">
+                Top Connections
               </h2>
             </div>
-            <div className="heatmap-slot">
-              {passHeatmap.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={passHeatmap.imageUrl} alt="Mapa de calor de destino de passes" className="heatmap-slot__img" />
-              ) : (
-                <div className="heatmap-slot__placeholder">
-                  <div className="pitch-mini" aria-hidden>
-                    <span className="pitch-mini__line pitch-mini__line--mid" />
-                    <span className="pitch-mini__line pitch-mini__line--box" />
-                  </div>
-                  <p>{passHeatmap.caption}</p>
-                </div>
-              )}
+
+            <div className="topic__hero-stat">
+              <span className="topic__hero-value">{topConnections.passes}</span>
+              <span className="topic__hero-label">Passes</span>
+            </div>
+
+            <div className="connections-grid">
+              <StatPill value={topConnections.gk} label="GK" tone="positive" />
+              <StatPill value={topConnections.wrongs} label="Wrongs" tone="negative" />
+              <StatPill value={topConnections.mc} label="MC" tone="neutral" />
             </div>
           </section>
 
