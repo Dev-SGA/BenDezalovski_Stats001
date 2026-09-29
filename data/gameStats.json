@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Relatório de Jogo",
-    "subtitle": "Estatísticas individuais"
+    "title": "Game Report",
+    "subtitle": "Individual match statistics"
   },
   "player": {
     "name": "Ben Dezalovski",
@@ -22,7 +22,8 @@
     "mc": 9
   },
   "defensivePositioning": {
-    "badAreaDefenseCount": 5
+    "badAreaDefenseCount": 5,
+    "videoLink": ""
   },
   "defensiveActions": {
     "successful": 10

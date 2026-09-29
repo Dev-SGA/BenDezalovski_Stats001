@@ -25,6 +25,7 @@ export type GameStats = {
   };
   defensivePositioning: {
     badAreaDefenseCount: number;
+    videoLink: string;
   };
   defensiveActions: {
     successful: number;

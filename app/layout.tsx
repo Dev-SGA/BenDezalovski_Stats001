@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Ben Dezalovski — Stats de Jogo | SGA Performance",
-  description: "Estatísticas individuais de Ben Dezalovski (Club Ohio) durante o jogo.",
+  title: "Ben Dezalovski — Game Stats | SGA Performance",
+  description: "Individual match statistics for Ben Dezalovski (Club Ohio).",
 };
 
 export const viewport = {
@@ -12,7 +12,7 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

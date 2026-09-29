@@ -1,5 +1,6 @@
 import { SgaBrand } from "@/components/SgaBrand";
 import { SgaCornerBrand } from "@/components/SgaCornerBrand";
+import { TopicDisclosure } from "@/components/TopicDisclosure";
 import { VideoLinksPanel } from "@/components/VideoLinksPanel";
 import { BRAND } from "@/lib/brand";
 import type { GameStats } from "@/lib/stats";
@@ -8,11 +9,27 @@ type GameStatsReportProps = {
   stats: GameStats;
 };
 
-function StatPill({ value, label, tone = "neutral" }: { value: number | string; label: string; tone?: "neutral" | "positive" | "negative" | "warn" }) {
+function pct(value: number, total: number): string {
+  if (total <= 0) return "0%";
+  return `${Math.round((value / total) * 100)}%`;
+}
+
+function StatPill({
+  value,
+  label,
+  tone = "neutral",
+  sublabel,
+}: {
+  value: number | string;
+  label: string;
+  tone?: "neutral" | "positive" | "negative" | "warn";
+  sublabel?: string;
+}) {
   return (
     <div className={`stat-pill stat-pill--${tone}`}>
       <span className="stat-pill__value">{value}</span>
       <span className="stat-pill__label">{label}</span>
+      {sublabel ? <span className="stat-pill__sublabel">{sublabel}</span> : null}
     </div>
   );
 }
@@ -30,10 +47,10 @@ function SplitBar({ left, right, leftLabel, rightLabel }: { left: number; right:
       </div>
       <div className="split-bar__legend">
         <span>
-          <strong>{left}</strong> {leftLabel}
+          <strong>{left}</strong> ({leftPct}%) {leftLabel}
         </span>
         <span>
-          <strong>{right}</strong> {rightLabel}
+          <strong>{right}</strong> ({rightPct}%) {rightLabel}
         </span>
       </div>
     </div>
@@ -42,6 +59,7 @@ function SplitBar({ left, right, leftLabel, rightLabel }: { left: number; right:
 
 export function GameStatsReport({ stats }: GameStatsReportProps) {
   const { player, carries, topConnections, defensivePositioning, defensiveActions, meta } = stats;
+  const passTotal = topConnections.passes;
 
   return (
     <>
@@ -54,85 +72,88 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
             <p className="report-header__eyebrow">{BRAND.legal}</p>
             <h1 className="report-header__title">{meta.title}</h1>
             <p className="report-header__meta">
-              {player.name} · {player.club}
+              {player.name} · {player.club} · {meta.subtitle}
             </p>
           </div>
         </header>
 
         <main className="bento">
-          <section className="topic topic--wide" aria-labelledby="topic-carries">
-            <div className="topic__head">
-              <span className="topic__num">01</span>
-              <h2 id="topic-carries" className="topic__title">
-                Conduções
-              </h2>
-            </div>
-
+          <TopicDisclosure
+            num="01"
+            title="Carries"
+            summary={`${carries.progressiveCarries} progressive carries · ${carries.offensiveDuelsWon} offensive duels won`}
+            wide
+          >
             <div className="topic__hero-stat">
               <span className="topic__hero-value">{carries.progressiveCarries}</span>
-              <span className="topic__hero-label">Conduções progressivas</span>
+              <span className="topic__hero-label">Progressive carries</span>
             </div>
 
             <SplitBar
               left={carries.foundAdvantage}
               right={carries.notFoundAdvantage}
-              leftLabel="achou companheiro em vantagem"
-              rightLabel="não achou"
+              leftLabel="found teammate in advantage"
+              rightLabel="did not find"
             />
 
             <div className="stat-row">
-              <StatPill value={carries.offensiveDuelsWon} label="Duelos ofensivos ganhos" tone="positive" />
-              <StatPill value={carries.offensiveDuelsLost} label="Duelo ofensivo perdido" tone="negative" />
+              <StatPill value={carries.offensiveDuelsWon} label="Offensive duels won" tone="positive" />
+              <StatPill value={carries.offensiveDuelsLost} label="Offensive duels lost" tone="negative" />
             </div>
 
             <VideoLinksPanel initialLinks={carries.videoLinks} />
-          </section>
+          </TopicDisclosure>
 
-          <section className="topic topic--wide" aria-labelledby="topic-connections">
-            <div className="topic__head">
-              <span className="topic__num">02</span>
-              <h2 id="topic-connections" className="topic__title">
-                Top Connections
-              </h2>
-            </div>
-
+          <TopicDisclosure
+            num="02"
+            title="Top Connections"
+            summary={`${topConnections.passes} passes · GK ${pct(topConnections.gk, passTotal)} · MC ${pct(topConnections.mc, passTotal)}`}
+            wide
+          >
             <div className="topic__hero-stat">
               <span className="topic__hero-value">{topConnections.passes}</span>
               <span className="topic__hero-label">Passes</span>
             </div>
 
             <div className="connections-grid">
-              <StatPill value={topConnections.gk} label="GK" tone="positive" />
-              <StatPill value={topConnections.wrongs} label="Wrongs" tone="negative" />
-              <StatPill value={topConnections.mc} label="MC" tone="neutral" />
+              <StatPill
+                value={topConnections.gk}
+                label="GK"
+                tone="positive"
+                sublabel={pct(topConnections.gk, passTotal)}
+              />
+              <StatPill
+                value={topConnections.wrongs}
+                label="Wrongs"
+                tone="negative"
+                sublabel={pct(topConnections.wrongs, passTotal)}
+              />
+              <StatPill value={topConnections.mc} label="MC" tone="neutral" sublabel={pct(topConnections.mc, passTotal)} />
             </div>
-          </section>
+          </TopicDisclosure>
 
-          <section className="topic" aria-labelledby="topic-positioning">
-            <div className="topic__head">
-              <span className="topic__num">03</span>
-              <h2 id="topic-positioning" className="topic__title">
-                Posicionamento ruim em defesa de área
-              </h2>
-            </div>
+          <TopicDisclosure
+            num="03"
+            title="Poor box-defending positioning"
+            summary={`${defensivePositioning.badAreaDefenseCount} occurrences`}
+          >
             <div className="topic__center-stat">
               <span className="topic__center-value topic__center-value--warn">{defensivePositioning.badAreaDefenseCount}×</span>
-              <p className="topic__center-caption">Ocorrências registradas no jogo</p>
+              <p className="topic__center-caption">Recorded occurrences in the match</p>
             </div>
-          </section>
+            <VideoLinksPanel
+              initialLinks={[defensivePositioning.videoLink]}
+              maxLinks={1}
+              label="Video clip"
+            />
+          </TopicDisclosure>
 
-          <section className="topic" aria-labelledby="topic-defensive">
-            <div className="topic__head">
-              <span className="topic__num">04</span>
-              <h2 id="topic-defensive" className="topic__title">
-                Ações defensivas
-              </h2>
-            </div>
+          <TopicDisclosure num="04" title="Defensive actions" summary={`${defensiveActions.successful} successful actions`}>
             <div className="topic__center-stat">
               <span className="topic__center-value topic__center-value--positive">{defensiveActions.successful}</span>
-              <p className="topic__center-caption">Ações defensivas bem-sucedidas</p>
+              <p className="topic__center-caption">Successful defensive actions</p>
             </div>
-          </section>
+          </TopicDisclosure>
         </main>
 
         <footer className="footer">
