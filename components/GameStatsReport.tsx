@@ -159,14 +159,27 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
       title: "Box-Defending Positioning",
       phase: "defensive",
       content: (
-        <div className="split-layout">
-          <BigStat
-            value={`${defensivePositioning.badAreaDefenseCount}×`}
-            caption="Moments out of position while defending the box"
-            tone="warn"
+        <>
+          <div className="metric-card metric-card--hero">
+            <h3 className="metric-card__title">Box-defending situations</h3>
+            <span className="metric-card__value">{defensivePositioning.totalSituations}</span>
+            <p className="metric-card__caption">Total situations while defending the box</p>
+          </div>
+          <SplitMeter
+            title="Positioning"
+            headline={`${defensivePositioning.badAreaDefenseCount} of ${defensivePositioning.totalSituations} · ${percent(
+              defensivePositioning.badAreaDefenseCount,
+              defensivePositioning.totalSituations,
+            )}%`}
+            primary={defensivePositioning.badAreaDefenseCount}
+            secondary={defensivePositioning.totalSituations - defensivePositioning.badAreaDefenseCount}
+            primaryLabel="Bad positioning"
+            secondaryLabel="In position"
+            primaryTone="negative"
+            secondaryTone="positive"
           />
           <ClipLinks scope="positioning" />
-        </div>
+        </>
       ),
     },
     {

@@ -23,6 +23,7 @@
     "mc": 9
   },
   "defensivePositioning": {
+    "totalSituations": 10,
     "badAreaDefenseCount": 5,
     "videoLink": ""
   },

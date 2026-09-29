@@ -26,7 +26,19 @@ function linkHost(url: string): string {
   }
 }
 
-function Bar({ label, value, total, tone, detail }: { label: string; value: number; total: number; tone: "blue" | "green"; detail?: string }) {
+function Bar({
+  label,
+  value,
+  total,
+  tone,
+  detail,
+}: {
+  label: string;
+  value: number;
+  total: number;
+  tone: "blue" | "green" | "red";
+  detail?: string;
+}) {
   const share = pct(value, total);
   return (
     <div className="spdf-bar">
@@ -163,10 +175,23 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
           <Section
             phase="defensive"
             title="Box-Defending Positioning"
-            value={`${defensivePositioning.badAreaDefenseCount}×`}
-            unit="out-of-position moments"
+            value={String(defensivePositioning.totalSituations)}
+            unit="situations"
           >
-            <p className="spdf-note">Moments out of position while defending the box.</p>
+            <Bar
+              label="Bad positioning"
+              value={defensivePositioning.badAreaDefenseCount}
+              total={defensivePositioning.totalSituations}
+              detail={`${defensivePositioning.badAreaDefenseCount}/${defensivePositioning.totalSituations}`}
+              tone="red"
+            />
+            <Bar
+              label="In position"
+              value={defensivePositioning.totalSituations - defensivePositioning.badAreaDefenseCount}
+              total={defensivePositioning.totalSituations}
+              detail={`${defensivePositioning.totalSituations - defensivePositioning.badAreaDefenseCount}/${defensivePositioning.totalSituations}`}
+              tone="green"
+            />
           </Section>
 
           <Section phase="defensive" title="Defensive Actions" value={String(defensiveActions.successful)} unit="successful actions">
