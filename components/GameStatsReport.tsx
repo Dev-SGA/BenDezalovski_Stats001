@@ -1,4 +1,5 @@
 import { AthleteProfileCard } from "@/components/AthleteProfileCard";
+import { ExportPdfButton } from "@/components/ExportPdfButton";
 import { ClipLinks } from "@/components/ClipLinks";
 import { MetricFlow } from "@/components/MetricFlow";
 import { SgaBrand } from "@/components/SgaBrand";
@@ -232,6 +233,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
           <AthleteProfileCard name={player.name} club={player.club} photoSrc={player.photo} />
 
           <main className="report-main">
+            <ExportPdfButton stats={stats} />
             <TopicsBoard topics={topics} />
           </main>
         </div>

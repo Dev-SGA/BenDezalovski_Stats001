@@ -868,3 +868,235 @@ body::before {
     animation: none;
   }
 }
+
+/* ---------- Export PDF ---------- */
+
+.export-pdf {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-bottom: 16px;
+}
+
+.export-pdf__error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--tone-negative);
+}
+
+/* Off-screen 16:9 slide for html2canvas — literal colors only */
+.stats-pdf-host {
+  position: fixed;
+  left: -12000px;
+  top: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.stats-pdf {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 960px;
+  height: 540px;
+  padding: 28px 32px 22px;
+  background: #072334;
+  color: #ffffff;
+  font-family: "Source Sans 3", "Trebuchet MS", sans-serif;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.stats-pdf *,
+.stats-pdf *::before,
+.stats-pdf *::after {
+  box-sizing: border-box;
+}
+
+.stats-pdf__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #2a4a62;
+}
+
+.stats-pdf__logo {
+  display: block;
+  height: 44px;
+  width: auto;
+}
+
+.stats-pdf__head-text {
+  text-align: right;
+}
+
+.stats-pdf__eyebrow {
+  margin: 0 0 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #6fa8d8;
+}
+
+.stats-pdf__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.stats-pdf__subtitle {
+  margin: 4px 0 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #93aec3;
+}
+
+.stats-pdf__body {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 18px;
+  padding-top: 16px;
+  min-height: 0;
+}
+
+.stats-pdf__profile {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stats-pdf__photo {
+  width: 100%;
+  height: 200px;
+  border-radius: 8px;
+  border: 1px solid #2a4a62;
+  background-color: #0d2c3f;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.stats-pdf__label {
+  margin: 0 0 2px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #6fa8d8;
+}
+
+.stats-pdf__name {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.stats-pdf__club {
+  margin: 4px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #93aec3;
+}
+
+.stats-pdf__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  min-height: 0;
+}
+
+.stats-pdf__block {
+  padding: 12px 14px;
+  border: 1px solid #2a4a62;
+  border-radius: 8px;
+  background: #0a1e2c;
+  overflow: hidden;
+}
+
+.stats-pdf__block--warn {
+  border-left: 3px solid #e08a4f;
+}
+
+.stats-pdf__block--good {
+  border-left: 3px solid #3fb56b;
+}
+
+.stats-pdf__block-title {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6fa8d8;
+}
+
+.stats-pdf__hero {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.stats-pdf__hero--warn {
+  color: #e08a4f;
+}
+
+.stats-pdf__hero--good {
+  color: #3fb56b;
+}
+
+.stats-pdf__hero-caption {
+  margin: 2px 0 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #93aec3;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.stats-pdf__lines {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 10.5px;
+  color: #c5d4df;
+}
+
+.stats-pdf__lines li + li {
+  margin-top: 4px;
+}
+
+.stats-pdf__links {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 10px;
+  font-weight: 700;
+  color: #297cc1;
+}
+
+.stats-pdf__links span[data-pdf-link] {
+  text-decoration: underline;
+}
+
+.stats-pdf__foot {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #2a4a62;
+  font-family: "Good Times", "Source Sans 3", sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #6fa8d8;
+}
