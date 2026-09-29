@@ -4,50 +4,37 @@ import { useVideoLinks } from "@/components/VideoLinksContext";
 
 type ClipLinksProps = {
   scope: "carries" | "positioning";
-  slots?: number;
 };
 
-export function ClipLinks({ scope, slots = scope === "carries" ? 3 : 1 }: ClipLinksProps) {
-  const { carryLinks, setCarryLink, positioningLink, setPositioningLink } = useVideoLinks();
+export function ClipLinks({ scope }: ClipLinksProps) {
+  const { carriesVideoLink, setCarriesVideoLink, positioningLink, setPositioningLink } = useVideoLinks();
 
-  const items =
-    scope === "carries"
-      ? Array.from({ length: slots }, (_, index) => ({
-          url: carryLinks[index] ?? "",
-          onChange: (value: string) => setCarryLink(index, value),
-        }))
-      : [{ url: positioningLink, onChange: setPositioningLink }];
+  const url = scope === "carries" ? carriesVideoLink : positioningLink;
+  const setUrl = scope === "carries" ? setCarriesVideoLink : setPositioningLink;
+  const trimmed = url.trim();
+  const hasUrl = trimmed.length > 0;
 
   return (
     <div className="clips">
-      <p className="section-label">Video clips</p>
-      <ul className="clips__list">
-        {items.map((item, index) => {
-          const trimmed = item.url.trim();
-          const hasUrl = trimmed.length > 0;
-
-          return (
-            <li key={index} className="clips__row">
-              <span className="clips__index">{index + 1}</span>
-              <input
-                type="url"
-                className="clips__input"
-                placeholder={`Paste video link ${index + 1}`}
-                value={item.url}
-                onChange={(e) => item.onChange(e.target.value)}
-                aria-label={`Video link ${index + 1}`}
-              />
-              {hasUrl ? (
-                <a className="clip clip--ready btn btn--primary" href={trimmed} target="_blank" rel="noopener noreferrer">
-                  Open
-                </a>
-              ) : (
-                <span className="clips__pending">Pending</span>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+      <p className="section-label">Video clip</p>
+      <div className="clips__row">
+        <span className="clips__index">1</span>
+        <input
+          type="url"
+          className="clips__input"
+          placeholder="Paste video link (Hudl, Drive, etc.)"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          aria-label="Video link"
+        />
+        {hasUrl ? (
+          <a className="clip clip--ready btn btn--primary" href={trimmed} target="_blank" rel="noopener noreferrer">
+            Open
+          </a>
+        ) : (
+          <span className="clips__pending">Pending</span>
+        )}
+      </div>
     </div>
   );
 }

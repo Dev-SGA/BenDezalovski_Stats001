@@ -14,7 +14,7 @@
     "notFoundAdvantage": 6,
     "offensiveDuelsWon": 5,
     "offensiveDuelsLost": 1,
-    "videoLinks": ["", "", ""]
+    "videoLink": ""
   },
   "topConnections": {
     "passes": 40,

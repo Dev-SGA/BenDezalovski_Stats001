@@ -82,11 +82,9 @@ function Section({
   );
 }
 
-function PdfVideoLinks({ carryLinks, positioningLink }: { carryLinks: string[]; positioningLink: string }) {
+function PdfVideoLinks({ carriesVideoLink, positioningLink }: { carriesVideoLink: string; positioningLink: string }) {
   const rows = [
-    { label: "Clip 1 — Progressive carries", url: (carryLinks[0] ?? "").trim() },
-    { label: "Clip 2 — Progressive carries", url: (carryLinks[1] ?? "").trim() },
-    { label: "Clip 3 — Progressive carries", url: (carryLinks[2] ?? "").trim() },
+    { label: "Progressive carries", url: carriesVideoLink.trim() },
     { label: "Box-defending positioning", url: positioningLink.trim() },
   ];
 
@@ -199,7 +197,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
           </Section>
         </div>
 
-        <PdfVideoLinks carryLinks={carries.videoLinks} positioningLink={defensivePositioning.videoLink} />
+        <PdfVideoLinks carriesVideoLink={carries.videoLink} positioningLink={defensivePositioning.videoLink} />
 
         <footer className="spdf-foot">
           <span>{BRAND.name}</span>

@@ -4,8 +4,8 @@ import { createContext, useContext, useMemo, useState, type ReactNode } from "re
 import type { GameStats } from "@/lib/stats";
 
 type VideoLinksContextValue = {
-  carryLinks: string[];
-  setCarryLink: (index: number, value: string) => void;
+  carriesVideoLink: string;
+  setCarriesVideoLink: (value: string) => void;
   positioningLink: string;
   setPositioningLink: (value: string) => void;
   mergeIntoStats: (stats: GameStats) => GameStats;
@@ -13,39 +13,31 @@ type VideoLinksContextValue = {
 
 const VideoLinksContext = createContext<VideoLinksContextValue | null>(null);
 
-function padCarryLinks(links: string[]): string[] {
-  const next = [...links];
-  while (next.length < 3) next.push("");
-  return next.slice(0, 3);
-}
-
 type VideoLinksProviderProps = {
-  initialCarryLinks: string[];
+  initialCarriesVideoLink: string;
   initialPositioningLink: string;
   children: ReactNode;
 };
 
-export function VideoLinksProvider({ initialCarryLinks, initialPositioningLink, children }: VideoLinksProviderProps) {
-  const [carryLinks, setCarryLinks] = useState(() => padCarryLinks(initialCarryLinks));
+export function VideoLinksProvider({ initialCarriesVideoLink, initialPositioningLink, children }: VideoLinksProviderProps) {
+  const [carriesVideoLink, setCarriesVideoLink] = useState(initialCarriesVideoLink);
   const [positioningLink, setPositioningLink] = useState(initialPositioningLink);
 
   const value = useMemo<VideoLinksContextValue>(
     () => ({
-      carryLinks,
-      setCarryLink(index, value) {
-        setCarryLinks((prev) => prev.map((link, i) => (i === index ? value : link)));
-      },
+      carriesVideoLink,
+      setCarriesVideoLink,
       positioningLink,
       setPositioningLink,
       mergeIntoStats(stats) {
         return {
           ...stats,
-          carries: { ...stats.carries, videoLinks: carryLinks },
+          carries: { ...stats.carries, videoLink: carriesVideoLink },
           defensivePositioning: { ...stats.defensivePositioning, videoLink: positioningLink },
         };
       },
     }),
-    [carryLinks, positioningLink],
+    [carriesVideoLink, positioningLink],
   );
 
   return <VideoLinksContext.Provider value={value}>{children}</VideoLinksContext.Provider>;

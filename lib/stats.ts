@@ -16,7 +16,7 @@ export type GameStats = {
     notFoundAdvantage: number;
     offensiveDuelsWon: number;
     offensiveDuelsLost: number;
-    videoLinks: string[];
+    videoLink: string;
   };
   topConnections: {
     passes: number;

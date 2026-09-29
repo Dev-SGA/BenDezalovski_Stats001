@@ -198,7 +198,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
 
   return (
     <VideoLinksProvider
-      initialCarryLinks={carries.videoLinks}
+      initialCarriesVideoLink={carries.videoLink}
       initialPositioningLink={defensivePositioning.videoLink}
     >
       <SgaCornerBrand />
