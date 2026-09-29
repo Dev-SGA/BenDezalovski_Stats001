@@ -112,11 +112,9 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
   const topics: Topic[] = [
     {
       id: "carries",
-      num: "01",
-      title: "Carries",
+      title: "Progressive Carries",
       metric: String(carries.progressiveCarries),
-      metricLabel: "Progressive carries",
-      summary: `${advantageRate}% found a teammate in advantage · ${duelWinRate}% offensive duels won`,
+      metricLabel: "",
       tone: "accent",
       content: (
         <>
@@ -153,11 +151,9 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
     },
     {
       id: "connections",
-      num: "02",
       title: "Top Connections",
       metric: String(passTotal),
-      metricLabel: "Passes",
-      summary: `GK ${percent(topConnections.gk, passTotal)}% · Wrongs ${percent(topConnections.wrongs, passTotal)}% · MC ${percent(topConnections.mc, passTotal)}%`,
+      metricLabel: "",
       tone: "accent",
       content: (
         <div className="connections">
@@ -175,11 +171,9 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
     },
     {
       id: "positioning",
-      num: "03",
-      title: "Poor box-defending positioning",
+      title: "Box-Defending Positioning",
       metric: `${defensivePositioning.badAreaDefenseCount}×`,
-      metricLabel: "Occurrences",
-      summary: "Moments out of position while defending the box",
+      metricLabel: "",
       tone: "warn",
       content: (
         <div className="split-layout">
@@ -195,11 +189,9 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
     },
     {
       id: "defensive",
-      num: "04",
-      title: "Defensive actions",
+      title: "Defensive Actions",
       metric: String(defensiveActions.successful),
-      metricLabel: "Successful",
-      summary: "Successful defensive actions in the match",
+      metricLabel: "",
       tone: "positive",
       content: (
         <BigStat

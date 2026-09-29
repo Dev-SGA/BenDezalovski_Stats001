@@ -6,11 +6,9 @@ export type Tone = "accent" | "positive" | "warn";
 
 export type Topic = {
   id: string;
-  num: string;
   title: string;
   metric: string;
   metricLabel: string;
-  summary: string;
   tone: Tone;
   content: React.ReactNode;
 };
@@ -63,15 +61,13 @@ export function TopicsBoard({ topics }: TopicsBoardProps) {
                 aria-expanded={open}
                 aria-controls={panelId}
               >
-                <span className="topic__num">{topic.num}</span>
-                <span className="topic__text">
-                  <span className="topic__title">{topic.title}</span>
-                  <span className="topic__summary">{topic.summary}</span>
-                </span>
-                <span className="topic__metric">
-                  <span className="topic__metric-value">{topic.metric}</span>
-                  <span className="topic__metric-label">{topic.metricLabel}</span>
-                </span>
+                <span className="topic__title">{topic.title}</span>
+                {topic.metric ? (
+                  <span className="topic__metric">
+                    <span className="topic__metric-value">{topic.metric}</span>
+                    {topic.metricLabel ? <span className="topic__metric-label">{topic.metricLabel}</span> : null}
+                  </span>
+                ) : null}
                 <span className="topic__chevron" aria-hidden="true" />
               </button>
               {open ? (
