@@ -9,6 +9,8 @@ type StatsGamePdfSheetProps = {
 
 type Phase = "build-up" | "defensive";
 
+type Tone = "blue" | "green" | "red" | "grey";
+
 const PHASE_LABEL: Record<Phase, string> = {
   "build-up": "Build-Up",
   defensive: "Defensive Phase",
@@ -26,32 +28,49 @@ function linkHost(url: string): string {
   }
 }
 
-function Bar({
+function StatTiles({ items }: { items: { label: string; value: number; tone?: Tone }[] }) {
+  return (
+    <ul className="spdf-stats">
+      {items.map((item) => (
+        <li key={item.label} className="spdf-stat">
+          <span className={`spdf-stat__value${item.tone ? ` spdf-stat__value--${item.tone}` : ""}`}>{item.value}</span>
+          <span className="spdf-stat__label">{item.label}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function RateBar({
   label,
   value,
-  total,
-  tone,
-  detail,
+  note,
+  segments,
 }: {
   label: string;
   value: number;
-  total: number;
-  tone: "blue" | "green" | "red";
-  detail?: string;
+  note: string;
+  segments: { value: number; tone: Tone }[];
 }) {
-  const share = pct(value, total);
+  const total = segments.reduce((sum, segment) => sum + segment.value, 0);
   return (
-    <div className="spdf-bar">
-      <div className="spdf-bar__head">
-        <span className="spdf-bar__label">{label}</span>
-        <span className="spdf-bar__figure">
-          {detail ?? value}
-          <span className="spdf-bar__pct">{share}%</span>
-        </span>
+    <div className="spdf-rate">
+      <div className="spdf-rate__head">
+        <span className="spdf-rate__label">{label}</span>
+        <span className="spdf-rate__value">{value}%</span>
       </div>
-      <div className="spdf-bar__track">
-        <div className={`spdf-bar__fill spdf-bar__fill--${tone}`} style={{ width: `${share}%` }} />
+      <div className="spdf-rate__track">
+        {segments.map((segment, index) =>
+          segment.value > 0 ? (
+            <span
+              key={index}
+              className={`spdf-rate__seg spdf-rate__seg--${segment.tone}`}
+              style={{ width: `${pct(segment.value, total)}%` }}
+            />
+          ) : null,
+        )}
       </div>
+      <p className="spdf-rate__note">{note}</p>
     </div>
   );
 }
@@ -61,23 +80,28 @@ function Section({
   title,
   value,
   unit,
-  children,
+  aside,
+  footer,
 }: {
   phase: Phase;
   title: string;
-  value: string;
+  value: number;
   unit: string;
-  children?: React.ReactNode;
+  aside: React.ReactNode;
+  footer?: React.ReactNode;
 }) {
   return (
     <section className={`spdf-section spdf-section--${phase}`}>
       <p className="spdf-section__phase">{PHASE_LABEL[phase]}</p>
       <h3 className="spdf-section__title">{title}</h3>
-      <div className="spdf-section__kpi">
-        <span className="spdf-section__value">{value}</span>
-        <span className="spdf-section__unit">{unit}</span>
+      <div className="spdf-section__body">
+        <div className="spdf-section__kpi">
+          <span className="spdf-section__value">{value}</span>
+          <span className="spdf-section__unit">{unit}</span>
+        </div>
+        <div className="spdf-section__aside">{aside}</div>
       </div>
-      {children ? <div className="spdf-section__detail">{children}</div> : null}
+      {footer ? <div className="spdf-section__footer">{footer}</div> : null}
     </section>
   );
 }
@@ -116,11 +140,8 @@ function PdfVideoLinks({ carriesVideoLink, positioningLink }: { carriesVideoLink
 
 export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfSheetProps) {
   const { player, meta, carries, topConnections, defensivePositioning, defensiveActions } = stats;
-  const passTotal = topConnections.passes;
-  const advantageTotal = carries.foundAdvantage + carries.notFoundAdvantage;
   const duelTotal = carries.offensiveDuelsWon + carries.offensiveDuelsLost;
-  const issued = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-
+  const inPosition = defensivePositioning.totalSituations - defensivePositioning.badAreaDefenseCount;
   return (
     <article className="stats-pdf" aria-hidden="true">
       <aside className="spdf-side">
@@ -143,58 +164,99 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
           </div>
           <div className="spdf-head__meta">
             <span>{meta.subtitle}</span>
-            <span>{issued}</span>
           </div>
         </header>
 
         <div className="spdf-grid">
-          <Section phase="build-up" title="Progressive Carries" value={String(carries.progressiveCarries)} unit="progressive carries">
-            <Bar
-              label="Found teammate in advantage"
-              value={carries.foundAdvantage}
-              total={advantageTotal}
-              detail={`${carries.foundAdvantage}/${advantageTotal}`}
-              tone="blue"
-            />
-            <Bar
-              label="Offensive duels won"
-              value={carries.offensiveDuelsWon}
-              total={duelTotal}
-              detail={`${carries.offensiveDuelsWon}/${duelTotal}`}
-              tone="green"
-            />
-          </Section>
+          <Section
+            phase="build-up"
+            title="Progressive Carries"
+            value={carries.progressiveCarries}
+            unit="Progressive carries"
+            aside={
+              <StatTiles
+                items={[
+                  { label: "Found advantage", value: carries.foundAdvantage, tone: "green" },
+                  { label: "Not found", value: carries.notFoundAdvantage, tone: "grey" },
+                  { label: "Duels won", value: carries.offensiveDuelsWon, tone: "green" },
+                ]}
+              />
+            }
+            footer={
+              <RateBar
+                label="Duel win rate"
+                value={pct(carries.offensiveDuelsWon, duelTotal)}
+                note={`${carries.offensiveDuelsWon} of ${duelTotal} offensive duels won`}
+                segments={[
+                  { value: carries.offensiveDuelsWon, tone: "green" },
+                  { value: carries.offensiveDuelsLost, tone: "red" },
+                ]}
+              />
+            }
+          />
 
-          <Section phase="build-up" title="Top Connections" value={String(passTotal)} unit="passes">
-            <Bar label="GK" value={topConnections.gk} total={passTotal} tone="blue" />
-            <Bar label="MC" value={topConnections.mc} total={passTotal} tone="blue" />
-          </Section>
+          <Section
+            phase="build-up"
+            title="Top Connections"
+            value={topConnections.passes}
+            unit="Total passes"
+            aside={
+              <StatTiles
+                items={[
+                  { label: "To GK", value: topConnections.gk, tone: "blue" },
+                  { label: "To MC", value: topConnections.mc, tone: "blue" },
+                  { label: "Wrong passes", value: topConnections.wrongs, tone: "red" },
+                ]}
+              />
+            }
+            footer={
+              <RateBar
+                label="Pass accuracy"
+                value={pct(topConnections.passes - topConnections.wrongs, topConnections.passes)}
+                note={`${topConnections.passes - topConnections.wrongs} of ${topConnections.passes} passes completed`}
+                segments={[
+                  { value: topConnections.passes - topConnections.wrongs, tone: "green" },
+                  { value: topConnections.wrongs, tone: "red" },
+                ]}
+              />
+            }
+          />
 
           <Section
             phase="defensive"
             title="Box-Defending Positioning"
-            value={String(defensivePositioning.totalSituations)}
-            unit="situations"
-          >
-            <Bar
-              label="Bad positioning"
-              value={defensivePositioning.badAreaDefenseCount}
-              total={defensivePositioning.totalSituations}
-              detail={`${defensivePositioning.badAreaDefenseCount}/${defensivePositioning.totalSituations}`}
-              tone="red"
-            />
-            <Bar
-              label="In position"
-              value={defensivePositioning.totalSituations - defensivePositioning.badAreaDefenseCount}
-              total={defensivePositioning.totalSituations}
-              detail={`${defensivePositioning.totalSituations - defensivePositioning.badAreaDefenseCount}/${defensivePositioning.totalSituations}`}
-              tone="green"
-            />
-          </Section>
+            value={defensivePositioning.totalSituations}
+            unit="Box-defending situations"
+            aside={
+              <StatTiles
+                items={[
+                  { label: "In position", value: inPosition, tone: "green" },
+                  { label: "Bad positioning", value: defensivePositioning.badAreaDefenseCount, tone: "red" },
+                ]}
+              />
+            }
+            footer={
+              <RateBar
+                label="In-position rate"
+                value={pct(inPosition, defensivePositioning.totalSituations)}
+                note={`${inPosition} of ${defensivePositioning.totalSituations} situations in position`}
+                segments={[
+                  { value: inPosition, tone: "green" },
+                  { value: defensivePositioning.badAreaDefenseCount, tone: "red" },
+                ]}
+              />
+            }
+          />
 
-          <Section phase="defensive" title="Defensive Actions" value={String(defensiveActions.successful)} unit="successful actions">
-            <p className="spdf-note">Successful defensive actions completed in the match.</p>
-          </Section>
+          <Section
+            phase="defensive"
+            title="Defensive Actions"
+            value={defensiveActions.successful}
+            unit="Successful actions"
+            aside={
+              <p className="spdf-note">Successful defensive actions completed while defending the box in the match.</p>
+            }
+          />
         </div>
 
         <PdfVideoLinks carriesVideoLink={carries.videoLink} positioningLink={defensivePositioning.videoLink} />
