@@ -336,6 +336,82 @@
   color: #6b8192;
 }
 
+.spdf-stat__detail {
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #8a9dab;
+}
+
+.spdf-highlight {
+  display: flex;
+  flex-direction: column;
+}
+
+.spdf-highlight__value {
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: #297cc1;
+}
+
+.spdf-highlight__label {
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #044f80;
+}
+
+.spdf-highlight__note {
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b8192;
+}
+
+.spdf-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid #dde3e8;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 12px;
+  color: #56697a;
+}
+
+.spdf-strip__label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6b8192;
+}
+
+.spdf-strip__figures strong {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.spdf-strip__won {
+  color: #05712d;
+}
+
+.spdf-strip__lost {
+  color: #a1343c;
+}
+
+.spdf-strip__rate {
+  font-size: 12px;
+  font-weight: 800;
+  color: #072334;
+}
+
 .spdf-rate__head {
   display: flex;
   align-items: baseline;

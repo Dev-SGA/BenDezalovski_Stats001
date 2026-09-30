@@ -28,16 +28,40 @@ function linkHost(url: string): string {
   }
 }
 
-function StatTiles({ items }: { items: { label: string; value: number; tone?: Tone }[] }) {
+function StatTiles({ items }: { items: { label: string; value: number; tone?: Tone; detail?: string }[] }) {
   return (
     <ul className="spdf-stats">
       {items.map((item) => (
         <li key={item.label} className="spdf-stat">
           <span className={`spdf-stat__value${item.tone ? ` spdf-stat__value--${item.tone}` : ""}`}>{item.value}</span>
           <span className="spdf-stat__label">{item.label}</span>
+          {item.detail ? <span className="spdf-stat__detail">{item.detail}</span> : null}
         </li>
       ))}
     </ul>
+  );
+}
+
+function Highlight({ value, label, note }: { value: number; label: string; note: string }) {
+  return (
+    <div className="spdf-highlight">
+      <span className="spdf-highlight__value">{value}%</span>
+      <span className="spdf-highlight__label">{label}</span>
+      <span className="spdf-highlight__note">{note}</span>
+    </div>
+  );
+}
+
+function DuelStrip({ won, lost }: { won: number; lost: number }) {
+  const total = won + lost;
+  return (
+    <div className="spdf-strip">
+      <span className="spdf-strip__label">Offensive duels</span>
+      <span className="spdf-strip__figures">
+        <strong className="spdf-strip__won">{won}</strong> won · <strong className="spdf-strip__lost">{lost}</strong> lost
+      </span>
+      <span className="spdf-strip__rate">{pct(won, total)}% win rate</span>
+    </div>
   );
 }
 
@@ -140,7 +164,7 @@ function PdfVideoLinks({ carriesVideoLink, positioningLink }: { carriesVideoLink
 
 export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfSheetProps) {
   const { player, meta, carries, topConnections, defensivePositioning, defensiveActions } = stats;
-  const duelTotal = carries.offensiveDuelsWon + carries.offensiveDuelsLost;
+  const advantageTotal = carries.foundAdvantage + carries.notFoundAdvantage;
   const inPosition = defensivePositioning.totalSituations - defensivePositioning.badAreaDefenseCount;
   return (
     <article className="stats-pdf" aria-hidden="true">
@@ -174,25 +198,13 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
             value={carries.progressiveCarries}
             unit="Progressive carries"
             aside={
-              <StatTiles
-                items={[
-                  { label: "Found advantage", value: carries.foundAdvantage, tone: "green" },
-                  { label: "Not found", value: carries.notFoundAdvantage, tone: "grey" },
-                  { label: "Duels won", value: carries.offensiveDuelsWon, tone: "green" },
-                ]}
+              <Highlight
+                value={pct(carries.foundAdvantage, advantageTotal)}
+                label="Found a teammate in advantage"
+                note={`${carries.foundAdvantage} of ${advantageTotal} carries`}
               />
             }
-            footer={
-              <RateBar
-                label="Duel win rate"
-                value={pct(carries.offensiveDuelsWon, duelTotal)}
-                note={`${carries.offensiveDuelsWon} of ${duelTotal} offensive duels won`}
-                segments={[
-                  { value: carries.offensiveDuelsWon, tone: "green" },
-                  { value: carries.offensiveDuelsLost, tone: "red" },
-                ]}
-              />
-            }
+            footer={<DuelStrip won={carries.offensiveDuelsWon} lost={carries.offensiveDuelsLost} />}
           />
 
           <Section
@@ -203,9 +215,18 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
             aside={
               <StatTiles
                 items={[
-                  { label: "To GK", value: topConnections.gk, tone: "blue" },
-                  { label: "To MC", value: topConnections.mc, tone: "blue" },
-                  { label: "Wrong passes", value: topConnections.wrongs, tone: "red" },
+                  {
+                    label: "GK",
+                    value: topConnections.gk,
+                    tone: "blue",
+                    detail: `${pct(topConnections.gk, topConnections.passes)}% of passes`,
+                  },
+                  {
+                    label: "MC",
+                    value: topConnections.mc,
+                    tone: "blue",
+                    detail: `${pct(topConnections.mc, topConnections.passes)}% of passes`,
+                  },
                 ]}
               />
             }
@@ -213,7 +234,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
               <RateBar
                 label="Pass accuracy"
                 value={pct(topConnections.passes - topConnections.wrongs, topConnections.passes)}
-                note={`${topConnections.passes - topConnections.wrongs} of ${topConnections.passes} passes completed`}
+                note={`${topConnections.passes - topConnections.wrongs} of ${topConnections.passes} passes completed · ${topConnections.wrongs} wrong`}
                 segments={[
                   { value: topConnections.passes - topConnections.wrongs, tone: "green" },
                   { value: topConnections.wrongs, tone: "red" },
