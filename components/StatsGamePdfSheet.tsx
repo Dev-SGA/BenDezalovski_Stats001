@@ -275,7 +275,9 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
             value={defensiveActions.successful}
             unit="Successful actions"
             aside={
-              <p className="spdf-note">Successful defensive actions completed while defending the box in the match.</p>
+              <p className="spdf-note">
+                {defensiveActions.successful} successful actions across interceptions, clearances and tackles.
+              </p>
             }
           />
         </div>
