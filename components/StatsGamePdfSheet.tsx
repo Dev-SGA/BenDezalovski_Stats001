@@ -252,7 +252,7 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
               <StatTiles
                 items={[
                   { label: "In position", value: inPosition, tone: "green" },
-                  { label: "Bad positioning", value: defensivePositioning.badAreaDefenseCount, tone: "red" },
+                  { label: "Out of position", value: defensivePositioning.badAreaDefenseCount, tone: "red" },
                 ]}
               />
             }

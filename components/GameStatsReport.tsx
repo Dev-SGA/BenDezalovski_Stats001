@@ -173,7 +173,7 @@ export function GameStatsReport({ stats }: GameStatsReportProps) {
             )}%`}
             primary={defensivePositioning.badAreaDefenseCount}
             secondary={defensivePositioning.totalSituations - defensivePositioning.badAreaDefenseCount}
-            primaryLabel="Bad positioning"
+            primaryLabel="Out of position"
             secondaryLabel="In position"
             primaryTone="negative"
             secondaryTone="positive"
