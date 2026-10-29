@@ -44,10 +44,10 @@
       }
     },
     {
-      "id": "louisville-city",
-      "label": "vs Louisville City",
-      "shortLabel": "Louisville",
-      "logo": "/clubs/louisville-city.png",
+      "id": "lou-fusz",
+      "label": "vs Lou Fusz Athletic",
+      "shortLabel": "Lou Fusz",
+      "logo": "/clubs/lou-fusz.png",
       "carries": {
         "total": 14,
         "good": 9,
@@ -55,11 +55,11 @@
       },
       "connections": {
         "positions": [
-          { "id": "GK", "actions": 11, "good": 0, "bad": 0 },
-          { "id": "MC", "actions": 8, "good": 0, "bad": 0 },
-          { "id": "ZG", "actions": 8, "good": 0, "bad": 0 },
-          { "id": "FB", "actions": 12, "good": 0, "bad": 0 },
-          { "id": "ST", "actions": 8, "good": 0, "bad": 0 }
+          { "id": "GK", "actions": 11 },
+          { "id": "MC", "actions": 8 },
+          { "id": "ZG", "actions": 8 },
+          { "id": "FB", "actions": 12 },
+          { "id": "ST", "actions": 8 }
         ]
       },
       "boxDefending": {

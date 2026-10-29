@@ -5,7 +5,6 @@ import { AthleteProfileCard } from "@/components/AthleteProfileCard";
 import { ExportPdfButton } from "@/components/ExportPdfButton";
 import { ClipAnchor, ClipLegendLabel, ClipMetricTitle } from "@/components/ClipUi";
 import { CountLine } from "@/components/CountLine";
-import { ClipLinks } from "@/components/ClipLinks";
 import { VideoLinksProvider } from "@/components/VideoLinksContext";
 import { MetricFlow } from "@/components/MetricFlow";
 import { SgaBrand } from "@/components/SgaBrand";
@@ -266,7 +265,6 @@ function buildTopics(match: MatchStats): Topic[] {
                 : []),
             ]}
           />
-          <ClipLinks scope="carries" />
         </>
       ),
     },
@@ -275,37 +273,37 @@ function buildTopics(match: MatchStats): Topic[] {
       title: "Passes & Connections",
       phase: "build-up",
       content: (
-        <MetricFlow
-          items={[
-            <div key="passes" className="metric-card metric-card--hero">
-              <h3 className="metric-card__title">Passes</h3>
-              {games ? (
-                <CountLine value={passTotal} unit="passes" size="hero" />
-              ) : (
-                <span className="metric-card__value">{formatCount(passTotal)}</span>
-              )}
-              <p className="metric-card__caption">
-                {isSeason ? seasonCaption("passes") : "Total passes and connection actions in the match"}
-              </p>
-            </div>,
-            ...[...connections.positions].sort((a, b) => b.actions - a.actions).map((position) => (
-              <div key={position.id} className="metric-card">
-                <h3 className="metric-card__title">{position.id}</h3>
-                <span className="metric-card__value">{formatCount(position.actions)}</span>
-                <span className="metric-card__pct">{percent(position.actions, passTotal)}% of passes</span>
+        <>
+          <div className="metric-card metric-card--hero">
+            <h3 className="metric-card__title">Passes</h3>
+            {games ? (
+              <CountLine value={passTotal} unit="passes" size="hero" />
+            ) : (
+              <span className="metric-card__value">{formatCount(passTotal)}</span>
+            )}
+            <p className="metric-card__caption">
+              {isSeason ? seasonCaption("passes") : "Total passes and connection actions in the match"}
+            </p>
+          </div>
+          <div className="conn-grid">
+            {[...connections.positions]
+              .sort((a, b) => b.actions - a.actions)
+              .map((position) => (
+                <div key={position.id} className="metric-card metric-card--mini">
+                  <h3 className="metric-card__title">{position.id}</h3>
+                  <span className="metric-card__value">{formatCount(position.actions)}</span>
+                  <span className="metric-card__pct">{percent(position.actions, passTotal)}%</span>
+                </div>
+              ))}
+            {connections.wrongs != null && connections.wrongs > 0 ? (
+              <div className="metric-card metric-card--mini">
+                <h3 className="metric-card__title">Wrong</h3>
+                <span className="metric-card__value">{formatCount(connections.wrongs)}</span>
+                <span className="metric-card__pct">{percent(connections.wrongs, passTotal)}%</span>
               </div>
-            )),
-            ...(connections.wrongs != null && connections.wrongs > 0
-              ? [
-                  <div key="wrongs" className="metric-card">
-                    <h3 className="metric-card__title">Wrong passes</h3>
-                    <span className="metric-card__value">{formatCount(connections.wrongs)}</span>
-                    <span className="metric-card__pct">{percent(connections.wrongs, passTotal)}% of passes</span>
-                  </div>,
-                ]
-              : []),
-          ]}
-        />
+            ) : null}
+          </div>
+        </>
       ),
     },
     {
@@ -341,7 +339,6 @@ function buildTopics(match: MatchStats): Topic[] {
             games={games}
             countUnit="situations"
           />
-          <ClipLinks scope="positioning" />
         </>
       ),
     },

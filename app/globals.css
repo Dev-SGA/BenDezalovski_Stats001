@@ -819,6 +819,33 @@ body::before {
   flex-direction: column;
 }
 
+.conn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.metric-card--mini {
+  min-width: 0;
+  padding: 12px 14px;
+}
+
+.metric-card--mini .metric-card__title {
+  margin-bottom: 8px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.metric-card--mini .metric-card__value {
+  font-size: 30px;
+}
+
+.metric-card--mini .metric-card__pct {
+  margin-top: 5px;
+  font-size: 11px;
+}
+
 .metric-card__title {
   margin: 0 0 14px;
   font-size: 15px;
