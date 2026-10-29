@@ -27,7 +27,7 @@ type GameStatsReportProps = {
   report: StatsReport;
 };
 
-type BarTone = "accent" | "positive" | "negative" | "muted";
+type BarTone = "accent" | "positive" | "negative" | "muted" | "warn";
 
 function percent(value: number, total: number): number {
   return total > 0 ? Math.round((value / total) * 100) : 0;
@@ -245,7 +245,7 @@ function buildTopics(match: MatchStats): Topic[] {
                 primaryLabel="Find Advantage"
                 secondaryLabel="Wrong Pass"
                 primaryTone="positive"
-                secondaryTone="muted"
+                secondaryTone="warn"
                 games={games}
                 countUnit="carries"
               />,
@@ -260,7 +260,7 @@ function buildTopics(match: MatchStats): Topic[] {
                       primaryLabel="Won"
                       secondaryLabel="Lost"
                       primaryTone="positive"
-                      secondaryTone="negative"
+                      secondaryTone="warn"
                       games={games}
                       countUnit="offensive duels"
                     />,
@@ -347,7 +347,7 @@ function buildTopics(match: MatchStats): Topic[] {
             primaryLabel="In Position"
             secondaryLabel="Out of Position"
             primaryTone="positive"
-            secondaryTone="negative"
+            secondaryTone="warn"
             games={games}
             countUnit="situations"
           />

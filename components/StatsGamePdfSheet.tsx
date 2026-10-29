@@ -12,7 +12,7 @@ type StatsGamePdfSheetProps = {
 
 type Phase = "build-up" | "defensive";
 
-type Tone = "blue" | "green" | "red" | "grey";
+type Tone = "blue" | "green" | "red" | "grey" | "amber";
 
 const PHASE_LABEL: Record<Phase, string> = {
   "build-up": "Build-Up",
@@ -153,9 +153,8 @@ export function StatsGamePdfSheet({
   const { player, meta, carries, offensiveDuels, connections, boxDefending, defensiveActions } = stats;
   const passTotal = connectionTotal(connections);
   const boxTotal = boxDefending.good + boxDefending.bad;
-  const connectionGood = connections.positions.reduce((sum, position) => sum + (position.good ?? 0), 0);
-  const connectionBad = connections.positions.reduce((sum, position) => sum + (position.bad ?? 0), 0);
-  const connectionJudged = connectionGood + connectionBad;
+  const sortedConnections = [...connections.positions].sort((a, b) => b.actions - a.actions);
+  const topConnectionActions = sortedConnections.slice(0, 2).reduce((sum, position) => sum + position.actions, 0);
   const carriesClip = resolveCarriesClip(stats);
   const boxClip = resolveBoxDefendingClip(stats);
 
@@ -213,7 +212,7 @@ export function StatsGamePdfSheet({
               <StatTiles
                 items={[
                   { label: "Find Advantage", value: carries.good, tone: "green" },
-                  { label: "Wrong Pass", value: carries.bad, tone: "red" },
+                  { label: "Wrong Pass", value: carries.bad, tone: "amber" },
                 ]}
               />
             }
@@ -224,7 +223,7 @@ export function StatsGamePdfSheet({
                 note={`${formatCount(carries.good)} of ${formatCount(carries.total)} carries found advantage`}
                 segments={[
                   { value: carries.good, tone: "green" },
-                  { value: carries.bad, tone: "red" },
+                  { value: carries.bad, tone: "amber" },
                 ]}
               />
             }
@@ -238,25 +237,27 @@ export function StatsGamePdfSheet({
             playIconUrl={playIconUrl}
             aside={
               <StatTiles
-                items={connections.positions.map((position) => ({
-                  label: position.id,
+                items={sortedConnections.map((position) => ({
+                  label: `${position.id} · ${pct(position.actions, passTotal)}%`,
                   value: position.actions,
                   tone: "blue" as Tone,
                 }))}
               />
             }
             footer={
-              connectionJudged > 0 ? (
-                <RateBar
-                  label="Good connections"
-                  value={pct(connectionGood, connectionJudged)}
-                  note={`${formatCount(connectionGood)} of ${formatCount(connectionJudged)} judged actions good`}
-                  segments={[
-                    { value: connectionGood, tone: "green" },
-                    { value: connectionBad, tone: "red" },
-                  ]}
-                />
-              ) : undefined
+              <RateBar
+                label="Top connections"
+                value={pct(topConnectionActions, passTotal)}
+                note={
+                  sortedConnections.length >= 2
+                    ? `${sortedConnections[0].id} and ${sortedConnections[1].id} account for ${pct(topConnectionActions, passTotal)}% of passes`
+                    : `${formatCount(topConnectionActions)} of ${formatCount(passTotal)} passes to top connections`
+                }
+                segments={[
+                  { value: topConnectionActions, tone: "blue" },
+                  { value: passTotal - topConnectionActions, tone: "grey" },
+                ]}
+              />
             }
           />
 
@@ -271,7 +272,7 @@ export function StatsGamePdfSheet({
               <StatTiles
                 items={[
                   { label: "In Position", value: boxDefending.good, tone: "green" },
-                  { label: "Out of Position", value: boxDefending.bad, tone: "red" },
+                  { label: "Out of Position", value: boxDefending.bad, tone: "amber" },
                 ]}
               />
             }
@@ -282,7 +283,7 @@ export function StatsGamePdfSheet({
                 note={`${formatCount(boxDefending.good)} of ${formatCount(boxTotal)} situations in position`}
                 segments={[
                   { value: boxDefending.good, tone: "green" },
-                  { value: boxDefending.bad, tone: "red" },
+                  { value: boxDefending.bad, tone: "amber" },
                 ]}
               />
             }
@@ -299,7 +300,7 @@ export function StatsGamePdfSheet({
                 <StatTiles
                   items={[
                     { label: "Won", value: offensiveDuels!.won, tone: "green" },
-                    { label: "Lost", value: offensiveDuels!.lost, tone: "red" },
+                    { label: "Lost", value: offensiveDuels!.lost, tone: "amber" },
                   ]}
                 />
               }
@@ -310,7 +311,7 @@ export function StatsGamePdfSheet({
                   note={`${formatCount(offensiveDuels!.won)} of ${formatCount(offensiveDuels!.won + offensiveDuels!.lost)} offensive duels won`}
                   segments={[
                     { value: offensiveDuels!.won, tone: "green" },
-                    { value: offensiveDuels!.lost, tone: "red" },
+                    { value: offensiveDuels!.lost, tone: "amber" },
                   ]}
                 />
               }
