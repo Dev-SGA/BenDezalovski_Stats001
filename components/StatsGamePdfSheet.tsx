@@ -54,13 +54,45 @@ function resolveBoxDefendingClip(stats: GameStats): string | undefined {
   return fromList || fallback || undefined;
 }
 
-function StatTiles({ items, tier }: { items: { label: string; value: number; tone?: Tone }[]; tier?: "top" | "rest" }) {
+function resolveWrongPassClip(stats: GameStats): string | undefined {
+  return clipUrl(stats.videos, "Wrong Pass", "Wrong passes", "Carries wrong")?.trim() || undefined;
+}
+
+function resolveOutOfPositionClip(stats: GameStats): string | undefined {
+  return clipUrl(stats.videos, "Out of Position", "Box defending out of position")?.trim() || undefined;
+}
+
+function StatTiles({
+  items,
+  tier,
+  playIconUrl,
+}: {
+  items: { label: string; value: number; tone?: Tone; href?: string }[];
+  tier?: "top" | "rest";
+  playIconUrl: string;
+}) {
   return (
     <ul className={`spdf-stats${tier ? ` spdf-stats--${tier}` : ""}`}>
       {items.map((item) => (
         <li key={item.label} className={`spdf-stat${item.tone ? ` spdf-stat--${item.tone}` : ""}`}>
+          {item.href ? (
+            <a
+              className="spdf-stat__hit"
+              href={item.href}
+              data-pdf-link={item.href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`Open video: ${item.label}`}
+            />
+          ) : null}
           <span className={`spdf-stat__value${item.tone ? ` spdf-stat__value--${item.tone}` : ""}`}>{formatCount(item.value)}</span>
-          <span className="spdf-stat__label">{item.label}</span>
+          <span className="spdf-stat__label">
+            {item.label}
+            {item.href ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={playIconUrl} alt="" className="spdf-stat__play" width={9} height={9} />
+            ) : null}
+          </span>
         </li>
       ))}
     </ul>
@@ -163,6 +195,8 @@ export function StatsGamePdfSheet({
   const topConnectionActions = sortedConnections.slice(0, 2).reduce((sum, position) => sum + position.actions, 0);
   const carriesClip = resolveCarriesClip(stats);
   const boxClip = resolveBoxDefendingClip(stats);
+  const wrongPassClip = resolveWrongPassClip(stats);
+  const outOfPositionClip = resolveOutOfPositionClip(stats);
 
   const showDuels = Boolean(offensiveDuels && offensiveDuels.won + offensiveDuels.lost > 0);
   const showDefensiveActions = Boolean(defensiveActions && defensiveActions.successful > 0);
@@ -232,9 +266,10 @@ export function StatsGamePdfSheet({
             playIconUrl={playIconUrl}
             aside={
               <StatTiles
+                playIconUrl={playIconUrl}
                 items={[
                   { label: "Find Advantage", value: carries.good, tone: "green" },
-                  { label: "Wrong Pass", value: carries.bad, tone: "amber" },
+                  { label: "Wrong Pass", value: carries.bad, tone: "amber", href: wrongPassClip },
                 ]}
               />
             }
@@ -261,11 +296,11 @@ export function StatsGamePdfSheet({
             aside={
               featured ? (
                 <div className="spdf-tiers">
-                  <StatTiles tier="top" items={topTiles} />
-                  {restTiles.length > 0 ? <StatTiles tier="rest" items={restTiles} /> : null}
+                  <StatTiles tier="top" items={topTiles} playIconUrl={playIconUrl} />
+                  {restTiles.length > 0 ? <StatTiles tier="rest" items={restTiles} playIconUrl={playIconUrl} /> : null}
                 </div>
               ) : (
-                <StatTiles items={allTiles} />
+                <StatTiles items={allTiles} playIconUrl={playIconUrl} />
               )
             }
             footer={
@@ -306,9 +341,10 @@ export function StatsGamePdfSheet({
             playIconUrl={playIconUrl}
             aside={
               <StatTiles
+                playIconUrl={playIconUrl}
                 items={[
                   { label: "In Position", value: boxDefending.good, tone: "green" },
-                  { label: "Out of Position", value: boxDefending.bad, tone: "amber" },
+                  { label: "Out of Position", value: boxDefending.bad, tone: "amber", href: outOfPositionClip },
                 ]}
               />
             }
@@ -335,6 +371,7 @@ export function StatsGamePdfSheet({
               layout="strip"
               aside={
                 <StatTiles
+                  playIconUrl={playIconUrl}
                   items={[
                     { label: "Won", value: offensiveDuels!.won, tone: "green" },
                     { label: "Lost", value: offensiveDuels!.lost, tone: "amber" },

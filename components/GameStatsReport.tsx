@@ -14,6 +14,7 @@ import { BRAND } from "@/lib/brand";
 import {
   boxDefendingClip,
   carriesClip,
+  clipUrl,
   connectionTotal,
   formatCount,
   perGameMatch,
@@ -204,6 +205,10 @@ function buildTopics(match: MatchStats): Topic[] {
 
   const carryClip = isSeason ? undefined : carriesClip(match);
   const boxClip = isSeason ? undefined : boxDefendingClip(match);
+  const wrongPassClip = isSeason ? undefined : clipUrl(match.videos, "Wrong Pass", "Wrong passes", "Carries wrong");
+  const outOfPositionClip = isSeason
+    ? undefined
+    : clipUrl(match.videos, "Out of Position", "Box defending out of position");
 
   const carryPositiveRate = percent(carries.good, carries.total);
   const passTotal = connectionTotal(connections);
@@ -246,6 +251,7 @@ function buildTopics(match: MatchStats): Topic[] {
                 secondaryLabel="Wrong Pass"
                 primaryTone="positive"
                 secondaryTone="warn"
+                secondaryHref={wrongPassClip}
                 games={games}
                 countUnit="carries"
               />,
@@ -348,6 +354,7 @@ function buildTopics(match: MatchStats): Topic[] {
             secondaryLabel="Out of Position"
             primaryTone="positive"
             secondaryTone="warn"
+            secondaryHref={outOfPositionClip}
             games={games}
             countUnit="situations"
           />

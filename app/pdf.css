@@ -556,6 +556,7 @@
 }
 
 .spdf-stat {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1 1 0;
@@ -565,6 +566,24 @@
   border-top: 2px solid #c6d3de;
   border-radius: 6px;
   background: #ffffff;
+}
+
+.spdf-stat__hit {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  border-radius: 6px;
+}
+
+.spdf-stat__play {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-left: 4px;
+  vertical-align: baseline;
 }
 
 .spdf-stat--blue {
