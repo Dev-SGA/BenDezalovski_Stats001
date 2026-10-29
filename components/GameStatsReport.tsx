@@ -288,15 +288,11 @@ function buildTopics(match: MatchStats): Topic[] {
                 {isSeason ? seasonCaption("passes") : "Total passes and connection actions in the match"}
               </p>
             </div>,
-            ...connections.positions.map((position) => (
+            ...[...connections.positions].sort((a, b) => b.actions - a.actions).map((position) => (
               <div key={position.id} className="metric-card">
                 <h3 className="metric-card__title">{position.id}</h3>
                 <span className="metric-card__value">{formatCount(position.actions)}</span>
-                <span className="metric-card__pct">
-                  {position.good != null || position.bad != null
-                    ? `${formatCount(position.good ?? 0)} good · ${formatCount(position.bad ?? 0)} bad`
-                    : `${percent(position.actions, passTotal)}% of passes`}
-                </span>
+                <span className="metric-card__pct">{percent(position.actions, passTotal)}% of passes</span>
               </div>
             )),
             ...(connections.wrongs != null && connections.wrongs > 0
