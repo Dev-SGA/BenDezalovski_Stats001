@@ -208,6 +208,9 @@ function buildTopics(match: MatchStats): Topic[] {
   const carryPositiveRate = percent(carries.good, carries.total);
   const passTotal = connectionTotal(connections);
   const boxTotal = boxDefending.good + boxDefending.bad;
+  const sortedConnections = [...connections.positions].sort((a, b) => b.actions - a.actions);
+  const topConnections = sortedConnections.slice(0, 2);
+  const otherConnections = sortedConnections.slice(2);
 
   const topics: Topic[] = [
     {
@@ -239,8 +242,8 @@ function buildTopics(match: MatchStats): Topic[] {
                 headline={`${formatCount(carries.good)} of ${formatCount(carries.total)} · ${carryPositiveRate}%`}
                 primary={carries.good}
                 secondary={carries.bad}
-                primaryLabel="Positive"
-                secondaryLabel="Bad"
+                primaryLabel="Find Advantage"
+                secondaryLabel="Wrong Pass"
                 primaryTone="positive"
                 secondaryTone="muted"
                 games={games}
@@ -273,7 +276,7 @@ function buildTopics(match: MatchStats): Topic[] {
       title: "Passes & Connections",
       phase: "build-up",
       content: (
-        <>
+        <div className="conn-layout">
           <div className="metric-card metric-card--hero">
             <h3 className="metric-card__title">Passes</h3>
             {games ? (
@@ -285,25 +288,34 @@ function buildTopics(match: MatchStats): Topic[] {
               {isSeason ? seasonCaption("passes") : "Total passes and connection actions in the match"}
             </p>
           </div>
-          <div className="conn-grid">
-            {[...connections.positions]
-              .sort((a, b) => b.actions - a.actions)
-              .map((position) => (
+          <div className="conn-side">
+            <div className="conn-top">
+              {topConnections.map((position) => (
+                <div key={position.id} className="metric-card">
+                  <h3 className="metric-card__title">{position.id}</h3>
+                  <span className="metric-card__value">{formatCount(position.actions)}</span>
+                  <span className="metric-card__pct">{percent(position.actions, passTotal)}% of passes</span>
+                </div>
+              ))}
+            </div>
+            <div className="conn-grid">
+              {otherConnections.map((position) => (
                 <div key={position.id} className="metric-card metric-card--mini">
                   <h3 className="metric-card__title">{position.id}</h3>
                   <span className="metric-card__value">{formatCount(position.actions)}</span>
                   <span className="metric-card__pct">{percent(position.actions, passTotal)}%</span>
                 </div>
               ))}
-            {connections.wrongs != null && connections.wrongs > 0 ? (
-              <div className="metric-card metric-card--mini">
-                <h3 className="metric-card__title">Wrong</h3>
-                <span className="metric-card__value">{formatCount(connections.wrongs)}</span>
-                <span className="metric-card__pct">{percent(connections.wrongs, passTotal)}%</span>
-              </div>
-            ) : null}
+              {connections.wrongs != null && connections.wrongs > 0 ? (
+                <div className="metric-card metric-card--mini">
+                  <h3 className="metric-card__title">Wrong</h3>
+                  <span className="metric-card__value">{formatCount(connections.wrongs)}</span>
+                  <span className="metric-card__pct">{percent(connections.wrongs, passTotal)}%</span>
+                </div>
+              ) : null}
+            </div>
           </div>
-        </>
+        </div>
       ),
     },
     {
@@ -332,8 +344,8 @@ function buildTopics(match: MatchStats): Topic[] {
             headline={`${formatCount(boxDefending.good)} of ${formatCount(boxTotal)} · ${percent(boxDefending.good, boxTotal)}%`}
             primary={boxDefending.good}
             secondary={boxDefending.bad}
-            primaryLabel="Good"
-            secondaryLabel="Bad"
+            primaryLabel="In Position"
+            secondaryLabel="Out of Position"
             primaryTone="positive"
             secondaryTone="negative"
             games={games}

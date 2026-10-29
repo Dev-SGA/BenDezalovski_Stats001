@@ -212,16 +212,16 @@ export function StatsGamePdfSheet({
             aside={
               <StatTiles
                 items={[
-                  { label: "Positive", value: carries.good, tone: "green" },
-                  { label: "Bad", value: carries.bad, tone: "red" },
+                  { label: "Find Advantage", value: carries.good, tone: "green" },
+                  { label: "Wrong Pass", value: carries.bad, tone: "red" },
                 ]}
               />
             }
             footer={
               <RateBar
-                label="Positive carries"
+                label="Found advantage"
                 value={pct(carries.good, carries.total)}
-                note={`${formatCount(carries.good)} of ${formatCount(carries.total)} carries positive`}
+                note={`${formatCount(carries.good)} of ${formatCount(carries.total)} carries found advantage`}
                 segments={[
                   { value: carries.good, tone: "green" },
                   { value: carries.bad, tone: "red" },
@@ -270,16 +270,16 @@ export function StatsGamePdfSheet({
             aside={
               <StatTiles
                 items={[
-                  { label: "Good", value: boxDefending.good, tone: "green" },
-                  { label: "Bad", value: boxDefending.bad, tone: "red" },
+                  { label: "In Position", value: boxDefending.good, tone: "green" },
+                  { label: "Out of Position", value: boxDefending.bad, tone: "red" },
                 ]}
               />
             }
             footer={
               <RateBar
-                label="Good positioning"
+                label="In position"
                 value={pct(boxDefending.good, boxTotal)}
-                note={`${formatCount(boxDefending.good)} of ${formatCount(boxTotal)} situations in good position`}
+                note={`${formatCount(boxDefending.good)} of ${formatCount(boxTotal)} situations in position`}
                 segments={[
                   { value: boxDefending.good, tone: "green" },
                   { value: boxDefending.bad, tone: "red" },
