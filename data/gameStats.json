@@ -28,7 +28,6 @@
       },
       "connections": {
         "passes": 40,
-        "wrongs": 12,
         "positions": [
           { "id": "GK", "actions": 13 },
           { "id": "MC", "actions": 9 }

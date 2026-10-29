@@ -54,11 +54,11 @@ function resolveBoxDefendingClip(stats: GameStats): string | undefined {
   return fromList || fallback || undefined;
 }
 
-function StatTiles({ items }: { items: { label: string; value: number; tone?: Tone }[] }) {
+function StatTiles({ items, tier }: { items: { label: string; value: number; tone?: Tone }[]; tier?: "top" | "rest" }) {
   return (
-    <ul className="spdf-stats">
+    <ul className={`spdf-stats${tier ? ` spdf-stats--${tier}` : ""}`}>
       {items.map((item) => (
-        <li key={item.label} className="spdf-stat">
+        <li key={item.label} className={`spdf-stat${item.tone ? ` spdf-stat--${item.tone}` : ""}`}>
           <span className={`spdf-stat__value${item.tone ? ` spdf-stat__value--${item.tone}` : ""}`}>{formatCount(item.value)}</span>
           <span className="spdf-stat__label">{item.label}</span>
         </li>
@@ -101,6 +101,8 @@ function RateBar({
   );
 }
 
+type SectionLayout = "featured" | "strip" | "mini";
+
 function Section({
   phase,
   title,
@@ -110,6 +112,7 @@ function Section({
   footer,
   playHref,
   playIconUrl,
+  layout,
 }: {
   phase: Phase;
   title: string;
@@ -119,14 +122,17 @@ function Section({
   footer?: React.ReactNode;
   playHref?: string;
   playIconUrl: string;
+  layout?: SectionLayout;
 }) {
   return (
-    <section className={`spdf-section spdf-section--${phase}`}>
-      <p className="spdf-section__phase">{PHASE_LABEL[phase]}</p>
-      <h3 className="spdf-section__title">
-        {title}
-        <PdfPlay href={playHref} playIconUrl={playIconUrl} />
-      </h3>
+    <section className={`spdf-section spdf-section--${phase}${layout ? ` spdf-section--${layout}` : ""}`}>
+      <div className="spdf-section__head">
+        <h3 className="spdf-section__title">
+          {title}
+          <PdfPlay href={playHref} playIconUrl={playIconUrl} />
+        </h3>
+        <p className="spdf-section__phase">{PHASE_LABEL[phase]}</p>
+      </div>
       <div className="spdf-section__body">
         <div className="spdf-section__kpi">
           <span className="spdf-section__value">
@@ -161,7 +167,20 @@ export function StatsGamePdfSheet({
   const showDuels = Boolean(offensiveDuels && offensiveDuels.won + offensiveDuels.lost > 0);
   const showDefensiveActions = Boolean(defensiveActions && defensiveActions.successful > 0);
   const sectionCount = 3 + (showDuels ? 1 : 0) + (showDefensiveActions ? 1 : 0);
-  const gridClass = sectionCount === 3 ? " spdf-grid--three" : sectionCount === 4 ? " spdf-grid--four" : "";
+  const gridClass =
+    sectionCount === 3 ? " spdf-grid--three" : sectionCount === 4 ? " spdf-grid--four" : " spdf-grid--five";
+  const wrongs = connections.wrongs ?? 0;
+  const accuratePasses = passTotal - wrongs;
+  const featured = sectionCount >= 4;
+  const connectionTile = (position: (typeof sortedConnections)[number]) => ({
+    label: `${position.id} · ${pct(position.actions, passTotal)}%`,
+    value: position.actions,
+    tone: "blue" as Tone,
+  });
+  const wrongTile = wrongs > 0 ? [{ label: `Wrong · ${pct(wrongs, passTotal)}%`, value: wrongs, tone: "amber" as Tone }] : [];
+  const topTiles = sortedConnections.slice(0, 2).map(connectionTile);
+  const restTiles = [...sortedConnections.slice(2).map(connectionTile), ...wrongTile];
+  const allTiles = [...sortedConnections.map(connectionTile), ...wrongTile];
 
   return (
     <article className="stats-pdf" aria-hidden="true">
@@ -186,7 +205,10 @@ export function StatsGamePdfSheet({
       <div className="spdf-main">
         <header className="spdf-head">
           <div>
-            <p className="spdf-head__eyebrow">{BRAND.legal}</p>
+            <p className="spdf-head__eyebrow">
+              <span className="spdf-head__mark" />
+              {BRAND.legal}
+            </p>
             <h1 className="spdf-head__title">{meta.title}</h1>
           </div>
           <div className="spdf-head__meta">
@@ -235,29 +257,43 @@ export function StatsGamePdfSheet({
             value={passTotal}
             unit="Passes"
             playIconUrl={playIconUrl}
+            layout={featured ? "featured" : undefined}
             aside={
-              <StatTiles
-                items={sortedConnections.map((position) => ({
-                  label: `${position.id} · ${pct(position.actions, passTotal)}%`,
-                  value: position.actions,
-                  tone: "blue" as Tone,
-                }))}
-              />
+              featured ? (
+                <div className="spdf-tiers">
+                  <StatTiles tier="top" items={topTiles} />
+                  {restTiles.length > 0 ? <StatTiles tier="rest" items={restTiles} /> : null}
+                </div>
+              ) : (
+                <StatTiles items={allTiles} />
+              )
             }
             footer={
-              <RateBar
-                label="Top connections"
-                value={pct(topConnectionActions, passTotal)}
-                note={
-                  sortedConnections.length >= 2
-                    ? `${sortedConnections[0].id} and ${sortedConnections[1].id} account for ${pct(topConnectionActions, passTotal)}% of passes`
-                    : `${formatCount(topConnectionActions)} of ${formatCount(passTotal)} passes to top connections`
-                }
-                segments={[
-                  { value: topConnectionActions, tone: "blue" },
-                  { value: passTotal - topConnectionActions, tone: "grey" },
-                ]}
-              />
+              wrongs > 0 ? (
+                <RateBar
+                  label="Accurate passes"
+                  value={pct(accuratePasses, passTotal)}
+                  note={`${formatCount(accuratePasses)} of ${formatCount(passTotal)} passes reached a teammate`}
+                  segments={[
+                    { value: accuratePasses, tone: "blue" },
+                    { value: wrongs, tone: "amber" },
+                  ]}
+                />
+              ) : (
+                <RateBar
+                  label="Top connections"
+                  value={pct(topConnectionActions, passTotal)}
+                  note={
+                    sortedConnections.length >= 2
+                      ? `${sortedConnections[0].id} and ${sortedConnections[1].id} account for ${pct(topConnectionActions, passTotal)}% of passes`
+                      : `${formatCount(topConnectionActions)} of ${formatCount(passTotal)} passes to top connections`
+                  }
+                  segments={[
+                    { value: topConnectionActions, tone: "blue" },
+                    { value: passTotal - topConnectionActions, tone: "grey" },
+                  ]}
+                />
+              )
             }
           />
 
@@ -296,6 +332,7 @@ export function StatsGamePdfSheet({
               value={offensiveDuels!.won + offensiveDuels!.lost}
               unit="Offensive duels"
               playIconUrl={playIconUrl}
+              layout="strip"
               aside={
                 <StatTiles
                   items={[
@@ -325,6 +362,7 @@ export function StatsGamePdfSheet({
               value={defensiveActions!.successful}
               unit="Successful defensive actions"
               playIconUrl={playIconUrl}
+              layout={sectionCount === 5 ? "mini" : "strip"}
             />
           ) : null}
         </div>
