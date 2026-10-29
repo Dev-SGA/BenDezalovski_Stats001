@@ -65,6 +65,9 @@
       "boxDefending": {
         "good": 9,
         "bad": 3
+      },
+      "defensiveActions": {
+        "successful": 8
       }
     }
   ]
