@@ -33,7 +33,7 @@ export function VideoLinksProvider({ initialCarriesVideoLink, initialPositioning
         return {
           ...stats,
           carries: { ...stats.carries, videoLink: carriesVideoLink },
-          defensivePositioning: { ...stats.defensivePositioning, videoLink: positioningLink },
+          boxDefending: { ...stats.boxDefending, videoLink: positioningLink },
         };
       },
     }),

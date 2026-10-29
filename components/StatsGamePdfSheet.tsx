@@ -1,10 +1,13 @@
 import { BRAND } from "@/lib/brand";
-import type { GameStats } from "@/lib/stats";
+import { clipUrl, connectionTotal, formatCount, type GameStats } from "@/lib/stats";
 
 type StatsGamePdfSheetProps = {
   stats: GameStats;
   photoUrl: string;
   logoUrl: string;
+  playIconUrl: string;
+  clubLogoUrl?: string;
+  opponentLogoUrl?: string;
 };
 
 type Phase = "build-up" | "defensive";
@@ -20,48 +23,47 @@ function pct(value: number, total: number): number {
   return total > 0 ? Math.round((value / total) * 100) : 0;
 }
 
-function linkHost(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return url.length > 48 ? `${url.slice(0, 45)}…` : url;
-  }
+function PdfPlay({ href, playIconUrl }: { href?: string; playIconUrl: string }) {
+  if (!href) return null;
+  return (
+    <a className="spdf-play" href={href} data-pdf-link={href} target="_blank" rel="noreferrer" aria-label="Open video">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={playIconUrl} alt="" className="spdf-play__icon" width={14} height={14} />
+    </a>
+  );
 }
 
-function StatTiles({ items }: { items: { label: string; value: number; tone?: Tone; detail?: string }[] }) {
+function PdfPlayTarget({ href, children }: { href?: string; children: React.ReactNode }) {
+  if (!href) return <>{children}</>;
+  return (
+    <a className="spdf-play-target" href={href} data-pdf-link={href} target="_blank" rel="noreferrer">
+      {children}
+    </a>
+  );
+}
+
+function resolveCarriesClip(stats: GameStats): string | undefined {
+  const fromList = clipUrl(stats.videos, "Carries", "Progressive carries", "Conduções", "Conducao")?.trim();
+  const fallback = stats.carries.videoLink?.trim() ?? "";
+  return fromList || fallback || undefined;
+}
+
+function resolveBoxDefendingClip(stats: GameStats): string | undefined {
+  const fromList = clipUrl(stats.videos, "Box defending", "Box-defending", "Defensive positioning")?.trim();
+  const fallback = stats.boxDefending.videoLink?.trim() ?? "";
+  return fromList || fallback || undefined;
+}
+
+function StatTiles({ items }: { items: { label: string; value: number; tone?: Tone }[] }) {
   return (
     <ul className="spdf-stats">
       {items.map((item) => (
         <li key={item.label} className="spdf-stat">
-          <span className={`spdf-stat__value${item.tone ? ` spdf-stat__value--${item.tone}` : ""}`}>{item.value}</span>
+          <span className={`spdf-stat__value${item.tone ? ` spdf-stat__value--${item.tone}` : ""}`}>{formatCount(item.value)}</span>
           <span className="spdf-stat__label">{item.label}</span>
-          {item.detail ? <span className="spdf-stat__detail">{item.detail}</span> : null}
         </li>
       ))}
     </ul>
-  );
-}
-
-function Highlight({ value, label, note }: { value: number; label: string; note: string }) {
-  return (
-    <div className="spdf-highlight">
-      <span className="spdf-highlight__value">{value}%</span>
-      <span className="spdf-highlight__label">{label}</span>
-      <span className="spdf-highlight__note">{note}</span>
-    </div>
-  );
-}
-
-function DuelStrip({ won, lost }: { won: number; lost: number }) {
-  const total = won + lost;
-  return (
-    <div className="spdf-strip">
-      <span className="spdf-strip__label">Offensive duels</span>
-      <span className="spdf-strip__figures">
-        <strong className="spdf-strip__won">{won}</strong> won · <strong className="spdf-strip__lost">{lost}</strong> lost
-      </span>
-      <span className="spdf-strip__rate">{pct(won, total)}% win rate</span>
-    </div>
   );
 }
 
@@ -106,66 +108,62 @@ function Section({
   unit,
   aside,
   footer,
+  playHref,
+  playIconUrl,
 }: {
   phase: Phase;
   title: string;
   value: number;
   unit: string;
-  aside: React.ReactNode;
+  aside?: React.ReactNode;
   footer?: React.ReactNode;
+  playHref?: string;
+  playIconUrl: string;
 }) {
   return (
     <section className={`spdf-section spdf-section--${phase}`}>
       <p className="spdf-section__phase">{PHASE_LABEL[phase]}</p>
-      <h3 className="spdf-section__title">{title}</h3>
+      <h3 className="spdf-section__title">
+        {title}
+        <PdfPlay href={playHref} playIconUrl={playIconUrl} />
+      </h3>
       <div className="spdf-section__body">
         <div className="spdf-section__kpi">
-          <span className="spdf-section__value">{value}</span>
+          <span className="spdf-section__value">
+            <PdfPlayTarget href={playHref}>{formatCount(value)}</PdfPlayTarget>
+            <PdfPlay href={playHref} playIconUrl={playIconUrl} />
+          </span>
           <span className="spdf-section__unit">{unit}</span>
         </div>
-        <div className="spdf-section__aside">{aside}</div>
+        {aside ? <div className="spdf-section__aside">{aside}</div> : null}
       </div>
       {footer ? <div className="spdf-section__footer">{footer}</div> : null}
     </section>
   );
 }
 
-function PdfVideoLinks({ carriesVideoLink, positioningLink }: { carriesVideoLink: string; positioningLink: string }) {
-  const rows = [
-    { label: "Progressive carries", url: carriesVideoLink.trim() },
-    { label: "Box-defending positioning", url: positioningLink.trim() },
-  ];
+export function StatsGamePdfSheet({
+  stats,
+  photoUrl,
+  logoUrl,
+  playIconUrl,
+  clubLogoUrl,
+  opponentLogoUrl,
+}: StatsGamePdfSheetProps) {
+  const { player, meta, carries, offensiveDuels, connections, boxDefending, defensiveActions } = stats;
+  const passTotal = connectionTotal(connections);
+  const boxTotal = boxDefending.good + boxDefending.bad;
+  const connectionGood = connections.positions.reduce((sum, position) => sum + (position.good ?? 0), 0);
+  const connectionBad = connections.positions.reduce((sum, position) => sum + (position.bad ?? 0), 0);
+  const connectionJudged = connectionGood + connectionBad;
+  const carriesClip = resolveCarriesClip(stats);
+  const boxClip = resolveBoxDefendingClip(stats);
 
-  return (
-    <section className="spdf-videos" aria-label="Video clips">
-      <h4 className="spdf-videos__title">Video clips</h4>
-      <ul className="spdf-videos__list">
-        {rows.map((row) => (
-          <li key={row.label}>
-            {row.url ? (
-              <a className="spdf-videos__link" href={row.url} data-pdf-link={row.url}>
-                <span className="spdf-videos__play" aria-hidden="true">
-                  ▶
-                </span>
-                <span className="spdf-videos__text">
-                  <strong>{row.label}</strong>
-                  <span>{linkHost(row.url)}</span>
-                </span>
-              </a>
-            ) : (
-              <span className="spdf-videos__empty">{row.label} — pending</span>
-            )}
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
+  const showDuels = Boolean(offensiveDuels && offensiveDuels.won + offensiveDuels.lost > 0);
+  const showDefensiveActions = Boolean(defensiveActions && defensiveActions.successful > 0);
+  const sectionCount = 3 + (showDuels ? 1 : 0) + (showDefensiveActions ? 1 : 0);
+  const gridClass = sectionCount === 3 ? " spdf-grid--three" : sectionCount === 4 ? " spdf-grid--four" : "";
 
-export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfSheetProps) {
-  const { player, meta, carries, topConnections, defensivePositioning, defensiveActions } = stats;
-  const advantageTotal = carries.foundAdvantage + carries.notFoundAdvantage;
-  const inPosition = defensivePositioning.totalSituations - defensivePositioning.badAreaDefenseCount;
   return (
     <article className="stats-pdf" aria-hidden="true">
       <aside className="spdf-side">
@@ -175,7 +173,13 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
         <div className="spdf-side__identity">
           <p className="spdf-side__label">Athlete</p>
           <h2 className="spdf-side__name">{player.name}</h2>
-          <p className="spdf-side__club">{player.club}</p>
+          <p className="spdf-side__club">
+            {clubLogoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={clubLogoUrl} alt="" className="spdf-side__club-logo" />
+            ) : null}
+            {player.club}
+          </p>
         </div>
         <p className="spdf-side__slogan">{BRAND.slogan}</p>
       </aside>
@@ -187,102 +191,142 @@ export function StatsGamePdfSheet({ stats, photoUrl, logoUrl }: StatsGamePdfShee
             <h1 className="spdf-head__title">{meta.title}</h1>
           </div>
           <div className="spdf-head__meta">
-            <span>{meta.subtitle}</span>
+            <span className="spdf-head__match">
+              {opponentLogoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={opponentLogoUrl} alt="" className="spdf-head__logo" />
+              ) : null}
+              {meta.subtitle}
+            </span>
           </div>
         </header>
 
-        <div className="spdf-grid">
+        <div className={`spdf-grid${gridClass}`}>
           <Section
             phase="build-up"
             title="Progressive Carries"
-            value={carries.progressiveCarries}
+            value={carries.total}
             unit="Progressive carries"
+            playHref={carriesClip}
+            playIconUrl={playIconUrl}
             aside={
-              <Highlight
-                value={pct(carries.foundAdvantage, advantageTotal)}
-                label="Found a teammate in advantage"
-                note={`${carries.foundAdvantage} of ${advantageTotal} carries`}
+              <StatTiles
+                items={[
+                  { label: "Positive", value: carries.good, tone: "green" },
+                  { label: "Bad", value: carries.bad, tone: "red" },
+                ]}
               />
             }
-            footer={<DuelStrip won={carries.offensiveDuelsWon} lost={carries.offensiveDuelsLost} />}
+            footer={
+              <RateBar
+                label="Positive carries"
+                value={pct(carries.good, carries.total)}
+                note={`${formatCount(carries.good)} of ${formatCount(carries.total)} carries positive`}
+                segments={[
+                  { value: carries.good, tone: "green" },
+                  { value: carries.bad, tone: "red" },
+                ]}
+              />
+            }
           />
 
           <Section
             phase="build-up"
-            title="Top Connections"
-            value={topConnections.passes}
-            unit="Total passes"
+            title="Passes & Connections"
+            value={passTotal}
+            unit="Passes"
+            playIconUrl={playIconUrl}
             aside={
               <StatTiles
-                items={[
-                  {
-                    label: "GK",
-                    value: topConnections.gk,
-                    tone: "blue",
-                    detail: `${pct(topConnections.gk, topConnections.passes)}% of passes`,
-                  },
-                  {
-                    label: "MC",
-                    value: topConnections.mc,
-                    tone: "blue",
-                    detail: `${pct(topConnections.mc, topConnections.passes)}% of passes`,
-                  },
-                ]}
+                items={connections.positions.map((position) => ({
+                  label: position.id,
+                  value: position.actions,
+                  tone: "blue" as Tone,
+                }))}
               />
             }
             footer={
-              <RateBar
-                label="Pass accuracy"
-                value={pct(topConnections.passes - topConnections.wrongs, topConnections.passes)}
-                note={`${topConnections.passes - topConnections.wrongs} of ${topConnections.passes} passes completed · ${topConnections.wrongs} wrong`}
-                segments={[
-                  { value: topConnections.passes - topConnections.wrongs, tone: "green" },
-                  { value: topConnections.wrongs, tone: "red" },
-                ]}
-              />
+              connectionJudged > 0 ? (
+                <RateBar
+                  label="Good connections"
+                  value={pct(connectionGood, connectionJudged)}
+                  note={`${formatCount(connectionGood)} of ${formatCount(connectionJudged)} judged actions good`}
+                  segments={[
+                    { value: connectionGood, tone: "green" },
+                    { value: connectionBad, tone: "red" },
+                  ]}
+                />
+              ) : undefined
             }
           />
 
           <Section
             phase="defensive"
-            title="Box-Defending Positioning"
-            value={defensivePositioning.totalSituations}
+            title="Box Defending"
+            value={boxTotal}
             unit="Box-defending situations"
+            playHref={boxClip}
+            playIconUrl={playIconUrl}
             aside={
               <StatTiles
                 items={[
-                  { label: "In position", value: inPosition, tone: "green" },
-                  { label: "Out of position", value: defensivePositioning.badAreaDefenseCount, tone: "red" },
+                  { label: "Good", value: boxDefending.good, tone: "green" },
+                  { label: "Bad", value: boxDefending.bad, tone: "red" },
                 ]}
               />
             }
             footer={
               <RateBar
-                label="In-position rate"
-                value={pct(inPosition, defensivePositioning.totalSituations)}
-                note={`${inPosition} of ${defensivePositioning.totalSituations} situations in position`}
+                label="Good positioning"
+                value={pct(boxDefending.good, boxTotal)}
+                note={`${formatCount(boxDefending.good)} of ${formatCount(boxTotal)} situations in good position`}
                 segments={[
-                  { value: inPosition, tone: "green" },
-                  { value: defensivePositioning.badAreaDefenseCount, tone: "red" },
+                  { value: boxDefending.good, tone: "green" },
+                  { value: boxDefending.bad, tone: "red" },
                 ]}
               />
             }
           />
 
-          <Section
-            phase="defensive"
-            title="Defensive Actions"
-            value={defensiveActions.successful}
-            unit="Successful actions"
-            aside={
-              <p className="spdf-note">
-                {defensiveActions.successful} successful actions across interceptions, clearances and tackles.
-              </p>
-            }
-          />
-        </div>
+          {showDuels ? (
+            <Section
+              phase="build-up"
+              title="Offensive Duels"
+              value={offensiveDuels!.won + offensiveDuels!.lost}
+              unit="Offensive duels"
+              playIconUrl={playIconUrl}
+              aside={
+                <StatTiles
+                  items={[
+                    { label: "Won", value: offensiveDuels!.won, tone: "green" },
+                    { label: "Lost", value: offensiveDuels!.lost, tone: "red" },
+                  ]}
+                />
+              }
+              footer={
+                <RateBar
+                  label="Duel win rate"
+                  value={pct(offensiveDuels!.won, offensiveDuels!.won + offensiveDuels!.lost)}
+                  note={`${formatCount(offensiveDuels!.won)} of ${formatCount(offensiveDuels!.won + offensiveDuels!.lost)} offensive duels won`}
+                  segments={[
+                    { value: offensiveDuels!.won, tone: "green" },
+                    { value: offensiveDuels!.lost, tone: "red" },
+                  ]}
+                />
+              }
+            />
+          ) : null}
 
-        <PdfVideoLinks carriesVideoLink={carries.videoLink} positioningLink={defensivePositioning.videoLink} />
+          {showDefensiveActions ? (
+            <Section
+              phase="defensive"
+              title="Defensive Actions"
+              value={defensiveActions!.successful}
+              unit="Successful defensive actions"
+              playIconUrl={playIconUrl}
+            />
+          ) : null}
+        </div>
 
         <footer className="spdf-foot">
           <span>{BRAND.name}</span>

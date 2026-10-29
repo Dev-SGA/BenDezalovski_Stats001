@@ -7,28 +7,65 @@
   "player": {
     "name": "Ben Dezalovski",
     "club": "Club Ohio",
+    "clubLogo": "/clubs/club-ohio.png",
     "photo": "/player/ben-dezalovski.jpeg"
   },
-  "carries": {
-    "progressiveCarries": 12,
-    "foundAdvantage": 6,
-    "notFoundAdvantage": 6,
-    "offensiveDuelsWon": 5,
-    "offensiveDuelsLost": 1,
-    "videoLink": "https://drive.google.com/file/d/1GQFF5OYibmwviERH1MoOdZ5aE791nAU0/view?usp=drive_link"
-  },
-  "topConnections": {
-    "passes": 40,
-    "gk": 13,
-    "wrongs": 12,
-    "mc": 9
-  },
-  "defensivePositioning": {
-    "totalSituations": 10,
-    "badAreaDefenseCount": 5,
-    "videoLink": "https://drive.google.com/file/d/1PYGjzPqJC8WQKm35kicQtrRRl-OYfiDZ/view?usp=drive_link"
-  },
-  "defensiveActions": {
-    "successful": 10
-  }
+  "matches": [
+    {
+      "id": "fc-cincinnati",
+      "label": "vs FC Cincinnati",
+      "shortLabel": "FC Cincinnati",
+      "logo": "/clubs/fc-cincinnati.png",
+      "carries": {
+        "total": 12,
+        "good": 6,
+        "bad": 6,
+        "videoLink": "https://drive.google.com/file/d/1GQFF5OYibmwviERH1MoOdZ5aE791nAU0/view?usp=drive_link"
+      },
+      "offensiveDuels": {
+        "won": 5,
+        "lost": 1
+      },
+      "connections": {
+        "passes": 40,
+        "wrongs": 12,
+        "positions": [
+          { "id": "GK", "actions": 13 },
+          { "id": "MC", "actions": 9 }
+        ]
+      },
+      "boxDefending": {
+        "good": 5,
+        "bad": 5,
+        "videoLink": "https://drive.google.com/file/d/1PYGjzPqJC8WQKm35kicQtrRRl-OYfiDZ/view?usp=drive_link"
+      },
+      "defensiveActions": {
+        "successful": 10
+      }
+    },
+    {
+      "id": "louisville-city",
+      "label": "vs Louisville City",
+      "shortLabel": "Louisville",
+      "logo": "/clubs/louisville-city.png",
+      "carries": {
+        "total": 14,
+        "good": 9,
+        "bad": 5
+      },
+      "connections": {
+        "positions": [
+          { "id": "GK", "actions": 11, "good": 0, "bad": 0 },
+          { "id": "MC", "actions": 8, "good": 0, "bad": 0 },
+          { "id": "ZG", "actions": 8, "good": 0, "bad": 0 },
+          { "id": "FB", "actions": 12, "good": 0, "bad": 0 },
+          { "id": "ST", "actions": 8, "good": 0, "bad": 0 }
+        ]
+      },
+      "boxDefending": {
+        "good": 9,
+        "bad": 3
+      }
+    }
+  ]
 }
