@@ -40,17 +40,7 @@
       },
       "defensiveActions": {
         "successful": 10
-      },
-      "videos": [
-        {
-          "label": "Wrong Pass",
-          "url": "https://drive.google.com/file/d/1VSSBhfnMemHQ7HFlnj2P48Ma0Lp-d-3p/view?usp=drive_link"
-        },
-        {
-          "label": "Out of Position",
-          "url": "https://drive.google.com/file/d/1_pFya_oyI43zKCJPJiaWyC66LkyIBvKc/view?usp=drive_link"
-        }
-      ]
+      }
     },
     {
       "id": "lou-fusz",
@@ -77,7 +67,17 @@
       },
       "defensiveActions": {
         "successful": 8
-      }
+      },
+      "videos": [
+        {
+          "label": "Wrong Pass",
+          "url": "https://drive.google.com/file/d/1VSSBhfnMemHQ7HFlnj2P48Ma0Lp-d-3p/view?usp=drive_link"
+        },
+        {
+          "label": "Out of Position",
+          "url": "https://drive.google.com/file/d/1_pFya_oyI43zKCJPJiaWyC66LkyIBvKc/view?usp=drive_link"
+        }
+      ]
     }
   ]
 }
