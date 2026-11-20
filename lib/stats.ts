@@ -22,7 +22,7 @@ export type PositionConnection = {
 export type Connections = {
   /** Total passes in the match; falls back to the sum of position actions. */
   passes?: number;
-  /** Wrong passes, when tracked. */
+  /** Inaccurate passes, when tracked. */
   wrongs?: number;
   positions: PositionConnection[];
 };
@@ -174,6 +174,89 @@ export function seasonMatch(matches: MatchStats[]): MatchStats {
     },
     defensiveActions: defensiveSuccessful > 0 ? { successful: defensiveSuccessful } : null,
   };
+}
+
+export type ProgressPoint = {
+  id: string;
+  label: string;
+  shortLabel: string;
+  logo: string;
+  quantity: number;
+  /** Success rate in percent (0-100). */
+  quality?: number;
+  qualityDetail?: string;
+};
+
+export type ProgressMetric = {
+  id: string;
+  title: string;
+  phase: "build-up" | "defensive";
+  quantityLabel: string;
+  qualityLabel?: string;
+  points: ProgressPoint[];
+};
+
+/** Metrics tracked in every match, ready for match-by-match trend charts. Offensive duels are intentionally left out. */
+export function progressMetrics(matches: MatchStats[]): ProgressMetric[] {
+  const base = (match: MatchStats) => ({
+    id: match.id,
+    label: match.label,
+    shortLabel: match.shortLabel,
+    logo: match.logo,
+  });
+  const rate = (good: number, total: number) => (total > 0 ? (good / total) * 100 : 0);
+
+  const metrics: (ProgressMetric | null)[] = [
+    {
+      id: "carries",
+      title: "Progressive Carries",
+      phase: "build-up",
+      quantityLabel: "Carries",
+      qualityLabel: "Find advantage",
+      points: matches.map((match) => ({
+        ...base(match),
+        quantity: match.carries.total,
+        quality: rate(match.carries.good, match.carries.total),
+        qualityDetail: `${match.carries.good} of ${match.carries.total} found advantage`,
+      })),
+    },
+    matches.every((match) => connectionTotal(match.connections) > 0)
+      ? {
+          id: "passes",
+          title: "Passes & Connections",
+          phase: "build-up",
+          quantityLabel: "Passes",
+          points: matches.map((match) => ({ ...base(match), quantity: connectionTotal(match.connections) })),
+        }
+      : null,
+    {
+      id: "box",
+      title: "Box Defending",
+      phase: "defensive",
+      quantityLabel: "Situations",
+      qualityLabel: "In position",
+      points: matches.map((match) => {
+        const total = match.boxDefending.good + match.boxDefending.bad;
+        return {
+          ...base(match),
+          quantity: total,
+          quality: rate(match.boxDefending.good, total),
+          qualityDetail: `${match.boxDefending.good} of ${total} in position`,
+        };
+      }),
+    },
+    matches.every((match) => (match.defensiveActions?.successful ?? 0) > 0)
+      ? {
+          id: "defensive",
+          title: "Defensive Actions",
+          phase: "defensive",
+          quantityLabel: "Successful actions",
+          points: matches.map((match) => ({ ...base(match), quantity: match.defensiveActions?.successful ?? 0 })),
+        }
+      : null,
+  ];
+
+  return metrics.filter((metric): metric is ProgressMetric => metric !== null);
 }
 
 /** Whole numbers stay as they are; averages show one decimal. */

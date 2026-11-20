@@ -55,7 +55,7 @@ function resolveBoxDefendingClip(stats: GameStats): string | undefined {
 }
 
 function resolveWrongPassClip(stats: GameStats): string | undefined {
-  return clipUrl(stats.videos, "Wrong Pass", "Wrong passes", "Carries wrong")?.trim() || undefined;
+  return clipUrl(stats.videos, "Inaccurate Passes", "Inaccurate Pass", "Wrong Pass", "Wrong passes")?.trim() || undefined;
 }
 
 function resolveOutOfPositionClip(stats: GameStats): string | undefined {
@@ -211,7 +211,7 @@ export function StatsGamePdfSheet({
     value: position.actions,
     tone: "blue" as Tone,
   });
-  const wrongTile = wrongs > 0 ? [{ label: `Wrong · ${pct(wrongs, passTotal)}%`, value: wrongs, tone: "amber" as Tone }] : [];
+  const wrongTile = wrongs > 0 ? [{ label: `Inaccurate · ${pct(wrongs, passTotal)}%`, value: wrongs, tone: "amber" as Tone }] : [];
   const topTiles = sortedConnections.slice(0, 2).map(connectionTile);
   const restTiles = [...sortedConnections.slice(2).map(connectionTile), ...wrongTile];
   const allTiles = [...sortedConnections.map(connectionTile), ...wrongTile];
@@ -269,7 +269,7 @@ export function StatsGamePdfSheet({
                 playIconUrl={playIconUrl}
                 items={[
                   { label: "Find Advantage", value: carries.good, tone: "green" },
-                  { label: "Wrong Pass", value: carries.bad, tone: "amber", href: wrongPassClip },
+                  { label: "Inaccurate Passes", value: carries.bad, tone: "amber", href: wrongPassClip },
                 ]}
               />
             }
